@@ -5,7 +5,7 @@
 #include <vector>
 using namespace std;
 
-extern bool erFlag;
+
 
 class ArgumentParser {
 public:

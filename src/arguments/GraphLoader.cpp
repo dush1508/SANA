@@ -38,12 +38,12 @@ pair<Graph,Graph> GraphLoader::initGraphs(ArgumentParser& args) {
 
     bool g1HasWeights, g2HasWeights;
 #ifdef MULTI_PAIRWISE
- #ifdef FLOAT_WEIGHTS
+ #ifdef WEIGHT
   #error multipairwise currently does not support float weights
  #else
     g1HasWeights = false, g2HasWeights = true; //g1 is unweighted and g2 (the shadow) is weighted
  #endif
-#elif FLOAT_WEIGHTS
+#elif WEIGHT
     g1HasWeights = true, g2HasWeights = true;
 #else 
     g1HasWeights = false, g2HasWeights = false; //unweighted
@@ -273,17 +273,13 @@ Graph GraphLoader::loadGraphFromFile(const string& graphName, const string& file
                                      bool loadWeights) {
     string format = fileName.substr(fileName.find_last_of('.')+1);
     string uncompressedFileExt = FileIO::getUncompressedFileExtension(fileName);
-
-    if (erFlag and (format != "elw")){
-           throw runtime_error("GraphLoader does not support format '"+format+"' for the er measure");
-    }
-    if (loadWeights and (format == "gml" or format == "lgf" or format == "xml" or format == "csv"))
+    if (loadWeights and (format == "gml" or format == "lgf" or format == "xml" or format == "csv" or format == "el" or format == "gw"))
         throw runtime_error("GraphLoader does not support weights for format '"+format+"'");
-    //for dbg:
-    //cerr<<graphName<<" "<<fileName<<" "<<loadWeights<<endl<<format<<" "<<uncompressedFileExt;
-    if (format == "gw" || uncompressedFileExt == "gw")
+    
+    if (format == "gw" || uncompressedFileExt == "gw"){
         return loadGraphFromGWFile(graphName, fileName, loadWeights);
-    if (format == "el" || uncompressedFileExt == "el" || format == "elw" || uncompressedFileExt == "elw"){
+    }
+    if (format == "elw" || uncompressedFileExt == "elw" || format == "el" || uncompressedFileExt == "el"){
         return loadGraphFromEdgeListFile(graphName, fileName, loadWeights);
     }
     if (format == "gml") return loadGraphFromGmlFile(graphName, fileName);
@@ -308,7 +304,7 @@ Graph GraphLoader::loadGraphFromGWFile(const string& graphName, const string& fi
         return Graph(graphName, fileName, gwData.edgeList, gwData.nodeNames, {}, {});
 #ifdef BOOL_EDGE_T
     throw runtime_error("cannot load weights for unweighted graph");
-#elif FLOAT_WEIGHTS
+#elif WEIGHT
     throw runtime_error("cannot load float weights from GW file");
 #else
     vector<EDGE_T> edgeWeights;
@@ -329,10 +325,8 @@ Graph GraphLoader::loadGraphFromEdgeListFile(const string& graphName, const stri
     else {
 #ifdef BOOL_EDGE_T
         throw runtime_error("cannot load weights for unweighted graph");
-#elif FLOAT_WEIGHTS
+#elif WEIGHT
         weightType = "float";
-#else
-        weightType = "int";
 #endif
     }
 
@@ -346,19 +340,8 @@ Graph GraphLoader::loadGraphFromEdgeListFile(const string& graphName, const stri
 
 #ifdef BOOL_EDGE_T
     throw runtime_error("cannot load weights for unweighted graph");
-#elif FLOAT_WEIGHTS
-    return Graph(graphName, fileName, edgeAndNodeNameLists.first, edgeAndNodeNameLists.second, 
-                 edgeListData.floatWeights, {});
-#else
-    vector<EDGE_T> edgeWeights;
-    edgeWeights.reserve(edgeListData.intWeights.size());
-    for (int w : edgeListData.intWeights) {
-        assert(w > 0 and "graph cannot have negative weights");
-        assert(w < (1L << 8*sizeof(EDGE_T)) -1 and "EDGE_T type is not wide enough for these weights");
-        edgeWeights.push_back((EDGE_T) w);
-    }
-    return Graph(graphName, fileName, edgeAndNodeNameLists.first, edgeAndNodeNameLists.second, 
-                 edgeWeights, {});
+#elif WEIGHT
+    return Graph(graphName, fileName, edgeAndNodeNameLists.first, edgeAndNodeNameLists.second, edgeListData.floatWeights, {});
 #endif
 }
 
@@ -440,8 +423,7 @@ GraphLoader::RawEdgeListFileData::RawEdgeListFileData(
     FileIO::checkFileExists(fileName);
     uint numLines = FileIO::numLinesInFile(fileName);
     namedEdgeList.reserve(numLines);                                       
-    if (weightType == "int") intWeights.reserve(numLines);
-    else if (weightType == "float") floatWeights.reserve(numLines);
+    if (weightType == "float") floatWeights.reserve(numLines);
     else if (weightType != "") throw runtime_error("weightType cannot be "+weightType);
 
     stdiobuf sbuf = FileIO::readFileAsStreamBuffer(fileName);
@@ -451,11 +433,12 @@ GraphLoader::RawEdgeListFileData::RawEdgeListFileData(
         istringstream iss(line);
         if (iss >> name1 >> name2) namedEdgeList.push_back({name1, name2});
         else throw runtime_error("failed to read edge from line: "+line);
-        if (weightType == "int") {
-            int w;
-            if (iss >> w) intWeights.push_back(w);
-            else throw runtime_error("failed to read weight from line: "+line);
-        } else if (weightType == "float") {
+        if(weightType == ""){
+            if (iss >> ws && !iss.eof()) {  // Check for additional data
+                throw runtime_error("WEIGHT is not set to 1 but extra data found in line: " + line);
+            }
+        }
+        if (weightType == "float") {
             float w;
             if (iss >> w) floatWeights.push_back(w);
             else throw runtime_error("failed to read weight from line: "+line);

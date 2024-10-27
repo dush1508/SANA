@@ -24,14 +24,14 @@ using namespace std;
 
 //EDGE_T: macro specifying the type of the edge weights
 #if defined(MULTI_PAIRWISE) || defined(MULTI_MPI)
-  #ifdef FLOAT_WEIGHTS
+  #ifdef WEIGHT
     #define EDGE_T float
     #error currently, MULTI_* is not designed for float edges
   #else
     #define EDGE_T unsigned char //change to unsigned short for >256 networks
   #endif
 #else
-  #ifdef FLOAT_WEIGHTS
+  #ifdef WEIGHT
     #define EDGE_T float
   #else
     #define EDGE_T bool //unweighted graphs -- the normal/traditional setting

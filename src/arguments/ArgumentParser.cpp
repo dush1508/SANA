@@ -5,7 +5,7 @@
 #include "SupportedArguments.hpp"
 using namespace std;
 
-bool erFlag;
+
 
 ArgumentParser::ArgumentParser(int argc, char* argv[]) {
     if(argc == 1) {
@@ -90,7 +90,6 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
                 throw runtime_error("Unknown argument: "+arg+". See the README for the correct syntax");
         }
     }
-    erFlag = false;
 }
 
 void ArgumentParser::writeArguments() {
@@ -101,11 +100,6 @@ void ArgumentParser::writeArguments() {
     }
     cout << endl;
     for (auto kv : doubles) {
-        if(kv.second!=0){
-            if(kv.first=="-er"){
-                erFlag=true;
-            }
-        }
         if (kv.second != 0) cout << kv.first << ": " << kv.second << '\t';
     }
     cout << endl;
