@@ -276,6 +276,9 @@ Graph GraphLoader::loadGraphFromFile(const string& graphName, const string& file
     if (loadWeights and (format == "gml" or format == "lgf" or format == "xml" or format == "csv" or format == "el" or format == "gw"))
         throw runtime_error("GraphLoader does not support weights for format '"+format+"'");
     
+    if(!loadWeights and format=="elw")
+        throw runtime_error("GraphLoader does not support format '"+format+"' for unweighted graphs");
+
     if (format == "gw" || uncompressedFileExt == "gw"){
         return loadGraphFromGWFile(graphName, fileName, loadWeights);
     }
