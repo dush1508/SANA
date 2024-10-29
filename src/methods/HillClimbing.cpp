@@ -62,7 +62,7 @@ double HillClimbing::getExecutionTime() const {
 }
 
 Alignment HillClimbing::run() {
-#ifdef FLOAT_WEIGHTS
+#ifdef WEIGHTS
     //would be cleaner if method selector failed if HC is selected with 
     //a measure it doesn't optimize 
     throw runtime_error("Hill climbing only supports ec/ics/s3/wec/local measures");
@@ -304,7 +304,7 @@ Alignment HillClimbing::run() {
         }
     }
     return A;
-#endif // FLOAT_WEIGHTS
+#endif // WEIGHTS
 }
 
 string HillClimbing::fileNameSuffix(const Alignment& A) const {
