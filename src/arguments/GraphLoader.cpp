@@ -4,6 +4,7 @@
 #include <set>
 #include <sstream>
 #include <sys/types.h>
+#include <cassert> 
 #include <sys/stat.h>
 #include <unistd.h>
 #include <thread>
@@ -14,6 +15,7 @@
 #include "../Alignment.hpp"
 #include "../Graph.hpp"
 #include "ArgumentParser.hpp"
+#include <type_traits>
 
 using namespace std;
 
@@ -273,7 +275,7 @@ Graph GraphLoader::loadGraphFromFile(const string& graphName, const string& file
                                      bool loadWeights) {
     string format = fileName.substr(fileName.find_last_of('.')+1);
     string uncompressedFileExt = FileIO::getUncompressedFileExtension(fileName);
-    if (loadWeights and (format == "gml" or format == "lgf" or format == "xml" or format == "csv" or format == "el" or format == "gw"))
+    if (loadWeights and (format == "gml" or format == "lgf" or format == "xml" or format == "csv" or format == "el"))
         throw runtime_error("GraphLoader does not support weights for format '"+format+"'");
     
     if(!loadWeights and format=="elw")
@@ -308,12 +310,11 @@ Graph GraphLoader::loadGraphFromGWFile(const string& graphName, const string& fi
 #ifdef BOOL_EDGE_T
     throw runtime_error("cannot load weights for unweighted graph");
 #elif WEIGHT
-    throw runtime_error("cannot load float weights from GW file");
-#else
     vector<EDGE_T> edgeWeights;
     edgeWeights.reserve(gwData.edgeWeights.size());
-    for (int w : gwData.edgeWeights) {
-        assert(w > 0 and "graph cannot have negative weights");
+    for (auto w : gwData.edgeWeights) {
+        assert((std::is_same<decltype(w), int>::value) && "Cannot load Non-integer weight from GW file");
+        assert(w >= 0 and "graph cannot have negative weights");
         assert(w < (1L << 8*sizeof(EDGE_T)) -1 and "EDGE_T type is not wide enough for these weights");
         edgeWeights.push_back((EDGE_T) w);
     }
