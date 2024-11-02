@@ -73,7 +73,7 @@ vector<double> Importance::getImportances(const Graph& G) {
 #if defined(MULTI_PAIRWISE) || defined(MULTI_MPI)
     throw runtime_error("Importance not implemented in multi pairwise mode");
 #endif
-#ifdef FLOAT_WEIGHTS
+#ifdef WEIGHTS
     throw runtime_error("Importance not implemented for weighted Graphs");
 #endif
 

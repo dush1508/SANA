@@ -174,9 +174,8 @@ void initMeasures(MeasureCombination& M, const Graph& G1, const Graph& G2, Argum
     M.addMeasure(m, getWeight("ses", G1, G2, args));
 	m = new EdgeExposure(&G1, &G2);
     M.addMeasure(m, getWeight("ee", G1, G2, args));
-
     m = new FMeasure(&G1, &G2);
-    M.addMeasure(m, getWeight("f", G1, G2, args));
+    M.addMeasure(m, getWeight("fbs", G1, G2, args));
     
     MultiS3::NumeratorType _numerator_type;
     MultiS3::DenominatorType _denominator_type;

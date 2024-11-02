@@ -9,7 +9,7 @@
 #include "../Graph.hpp"
 
 #ifndef MULTI_PAIRWISE
-#ifndef FLOAT_WEIGHTS
+#ifndef WEIGHT
 #define BOOL_EDGE_T 1
 #endif
 #endif

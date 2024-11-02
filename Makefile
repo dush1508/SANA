@@ -7,8 +7,8 @@ CXXFLAGS = -I "src/utils" "-DLIBWAYNE=1" -Wall -std=c++11 -pthread $(ARCH_FLAGS)
 SANA_VER=2.0
 MAIN = sana$(SANA_VER)
 
-#you can give these on Make's command line, eg "SPARSE=1" or "FLOAT=1" or "MULTI=1"
-#all can be mixed and matched except FLOAT and MULTI
+#you can give these on Make's command line, eg "SPARSE=1" or "WEIGHT=1" or "MULTI=1"
+#all can be mixed and matched except WEIGHT and MULTI
 #These should be listed roughly in order of how fast they run (fastest first, with the empty extension "sana" assumed fastest)
 
 ifeq ($(MPI), 1)
@@ -48,15 +48,15 @@ ifeq ($(MULTI), 1)
     MAIN := $(MAIN).multi
 endif
 
-ifeq ($(FLOAT), 1)
-    CXXFLAGS := $(CXXFLAGS) -DFLOAT_WEIGHTS
-    MAIN := $(MAIN).float
+ifeq ($(WEIGHT), 1)
+    CXXFLAGS := $(CXXFLAGS) -DWEIGHT
+    MAIN := $(MAIN).weight
 endif
 
 ######## THIS ONE MUST BE LAST to ensure "MAIN=error" when an incompatible combination occurs ##################
 ifeq ($(MULTI), 1)
-    ifeq ($(FLOAT), 1)
-	ERROR="SANA cannot currently use FLOAT in MULTI-alignments"
+    ifeq ($(WEIGHT), 1)
+	ERROR="SANA cannot currently use WEIGHT in MULTI-alignments"
 	MAIN=error
     endif
     ifeq ($(CORES), 1)
