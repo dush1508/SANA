@@ -154,7 +154,7 @@ vector<array<string, 6>> supportedArguments = {
     { "-graphletnorm", "double", "0", "similarities between the normalization of 2 GDV vectors", "objective function based on the ratio between vector elements. Used when \"-objfuntype\" is \"generic\".", "1" },
     { "-go_k", "double", "0", "k-common GO terms", "Objective function based on having up to k GO terms in common. Used when \"-objfuntype\" is \"generic\".", "1" },
     { "-graphletcosine", "double", "0", "Similarity of cosine between GDV vectors", "Objective function based on the cosine angle between graphlet degree vectors. Used when \"-objfuntype\" is \"generic\".", "1" },
-    { "-fbs", "double", "0", "Weight of FMeasure", "This is the weight of the FMeasure: Citation: New Directions in Network Alignment. Leybovich, I. 2022", "1" },
+    { "-f_beta", "comma", "0,-1", "Toggle of FMeasure and value of beta", "This is toggle of the FMeasure and the value of Beta. Citation: New Directions in Network Alignment. Leybovich, I. 2022", "1" },
     { "-topomeasure", "string", "", "Topological Measure", "Topological component of the scoring function. Used when \"-objfuntype\" is either \"alpha\" or \"beta\".", "1" },
     
     { "", "", "banner", "", "Multiple Alignment Objectives (must compile SANA with \"make multi\")", "0" },
@@ -259,6 +259,7 @@ vector<string> doubleArgs;
 vector<string> boolArgs;
 vector<string> doubleVectorArgs;
 vector<string> stringVectorArgs;
+vector<string> commaArgs;
 
 void SupportedArguments::validateAndAddArguments(){
     for(uint i = 1; i < supportedArguments.size(); ++i){
@@ -281,6 +282,9 @@ void SupportedArguments::validateAndAddArguments(){
             doubleVectorArgs.push_back(supportedArguments[i][0]);
         else if(supportedArguments[i][1] == "str_vec")
             stringVectorArgs.push_back(supportedArguments[i][0]);
+        else if(supportedArguments[i][1] == "comma")
+            commaArgs.push_back(supportedArguments[i][0]);
+            
         else
             throw runtime_error("Option: "+supportedArguments[i][0]+" is type "+supportedArguments[i][1]+" which is not supported. Please check to make sure this option has a correct type.");
     }

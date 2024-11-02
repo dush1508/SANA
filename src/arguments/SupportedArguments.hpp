@@ -19,6 +19,7 @@ extern vector<string> doubleArgs;
 extern vector<string> boolArgs;
 extern vector<string> doubleVectorArgs;
 extern vector<string> stringVectorArgs;
+extern vector<string> commaArgs;
 
 class SupportedArguments {
 public:
