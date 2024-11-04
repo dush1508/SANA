@@ -92,7 +92,16 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
         } else if (commaVectors.count(arg)){
             commaVectors[arg] = std::make_pair(0,-1);
             string commaBuffer = vArg[i+1];
-
+           
+            double weight_value = static_cast<double>( commaBuffer[0] - '0');
+            if(weight_value > 0 ){
+                cout<<"Sorry, SANA does not support the f-measure. We are currently working on adding the f-measure to SANA. Stay tuned!\n";
+                exit(1);
+            }
+            double beta_value = std::stod(commaBuffer.substr(2));
+            if( beta_value < 0)
+                runtime_error("The range of beta values is [0,inf). The current value is not in this range.\n");
+            
             if(commaBuffer[2] == '#')
                 commaVectors[arg] = std::make_pair((static_cast<double>( commaBuffer[0] - '0')),-1);  
             else

@@ -18,6 +18,7 @@
 #include "../measures/SquaredEdgeScore.hpp"
 #include "../measures/EdgeExposure.hpp"
 #include "../measures/MultiS3.hpp"
+#include "../measures/FMeasure.hpp"
 #include "../measures/localMeasures/NodeCount.hpp"
 #include "../measures/localMeasures/NodeDensity.hpp"
 #include "../measures/localMeasures/EdgeCount.hpp"
@@ -30,7 +31,6 @@
 #include "../measures/localMeasures/GraphletLGraal.hpp"
 #include "../measures/localMeasures/GraphletCosine.hpp"
 #include "../measures/localMeasures/GraphletNorm.hpp"
-#include "../measures/FMeasure.hpp"
 
 using namespace std;
 
@@ -93,9 +93,15 @@ double totalGenericWeight(ArgumentParser& args) {
         "importance", "sequence","graphlet","graphletlgraal", "graphletcosine", "graphletnorm", "spc", "nc",
         "mec", "ewec", "ses", "ee", "ms3"
     };
+    vector<string> optimizableCommaMeasures = {
+       "f_beta"
+    };
     double total = 0;
     for (uint i = 0; i < optimizableDoubleMeasures.size(); i++)
         total += args.doubles["-"+optimizableDoubleMeasures[i]];
+
+    for (uint i = 0; i < optimizableCommaMeasures.size(); i++)
+        total += args.commaVectors["-"+optimizableCommaMeasures[i]].first;
 
     vector<string> optimizableDoubleVectorsMeasures = { "esim" };
     for (uint i = 0; i < optimizableDoubleVectorsMeasures.size(); i++){
@@ -114,6 +120,7 @@ double getWeight(string measureName, const Graph& G1, const Graph& G2, ArgumentP
     if (objFunType == "generic") {
         double weight;
         if (args.doubles.count("-" + measureName)) weight = args.doubles["-"+measureName];
+        else if (args.commaVectors.count("-"+measureName)) weight = args.commaVectors["-"+measureName].first;
         else weight = args.doubleVectors["-" + measureName][index];
         return weight/totalGenericWeight(args);
     } else if (objFunType == "alpha" or objFunType == "beta") {
@@ -174,8 +181,8 @@ void initMeasures(MeasureCombination& M, const Graph& G1, const Graph& G2, Argum
     M.addMeasure(m, getWeight("ses", G1, G2, args));
 	m = new EdgeExposure(&G1, &G2);
     M.addMeasure(m, getWeight("ee", G1, G2, args));
-    m = new FMeasure(&G1, &G2);
-    M.addMeasure(m, getWeight("fbs", G1, G2, args));
+    m = new FMeasure(&G1, &G2,args.commaVectors["-f_beta"].second);
+    M.addMeasure(m, getWeight("f_beta", G1, G2, args));
     
     MultiS3::NumeratorType _numerator_type;
     MultiS3::DenominatorType _denominator_type;

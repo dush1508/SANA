@@ -36,7 +36,8 @@ vector<string> defaultArguments = {
 "-ms3_denom default", 
 "-parallelTotalAlign 1", 
 "-parallelBatch 1", 
-"-parallelReportAll 0"
+"-parallelReportAll 0",
+"-f_beta 0,-1"
 };
 
 //This file contains every argument supported by SANA contained basically inside an array, each element in the array contains 6 fields.
