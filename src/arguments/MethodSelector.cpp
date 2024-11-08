@@ -88,7 +88,7 @@ void MethodSelector::validateRunTimeSpec(ArgumentParser& args) {
 	char *s_tol = getenv("SANA_TOLERANCE");
 	if(s_tol) {
 	    cerr << "WARNING: forcibly replacing tolerance "<<tol<<" with SANA_TOLERANCE (string "<<s_tol<<", double ";
-	    tol = args.doubles["-tol"] = stod(s_tol);
+	    tol = args.doubles["-tolerance"] = stod(s_tol);
 	    cerr << tol << ")" << endl;
 	}
     }
