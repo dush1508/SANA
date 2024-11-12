@@ -45,6 +45,10 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
     for (string s: boolArgs)         bools[s]         = false;
     for (string s: doubleVectorArgs) doubleVectors[s] = vector<double> (0);
     for (string s: stringVectorArgs) stringVectors[s] = vector<string> (0);
+    for (string s: commaArgs) commaVectors[s] = std::make_pair(0,0);
+
+   
+
 
     bool helpFound = false;
     unordered_set<string> helpArgs;
@@ -85,7 +89,27 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
             for (int j = 0; j < k; j++)
                 stringVectors[arg].push_back(vArg[i+2+j]);
             i = i+k+1;
-        } else {
+        } else if (commaVectors.count(arg)){
+            commaVectors[arg] = std::make_pair(0,-1);
+            string commaBuffer = vArg[i+1];
+           
+            double weight_value = static_cast<double>( commaBuffer[0] - '0');
+            if(weight_value > 0 ){
+                cout<<"Sorry, SANA does not support the f-measure. We are currently working on adding the f-measure to SANA. Stay tuned!\n";
+                exit(1);
+            }
+            double beta_value = std::stod(commaBuffer.substr(2));
+            if( beta_value < 0)
+                runtime_error("The range of beta values is [0,inf). The current value is not in this range.\n");
+            
+            if(commaBuffer[2] == '#')
+                commaVectors[arg] = std::make_pair((static_cast<double>( commaBuffer[0] - '0')),-1);  
+            else
+                commaVectors[arg] = std::make_pair((static_cast<double>( commaBuffer[0] - '0')),(static_cast<double>( commaBuffer[2] - '0')));
+            
+            i=i+1;
+        }
+        else {
             // if (arg.size() > 1)  I *think* this was needed because of a bug in split that I just fixed. Not sure, so leaving it commented -Nil
                 throw runtime_error("Unknown argument: "+arg+". See the README for the correct syntax");
         }
@@ -120,6 +144,15 @@ void ArgumentParser::writeArguments() {
             cout << kv.first << ": ";
             for (uint i = 0; i < kv.second.size(); i++) cout << kv.second[i] << " ";
             cout << endl;
+        }
+    }
+    cout << endl;
+
+    for (const auto& kv : commaVectors) {
+        if (kv.second.first != 0) {  // Check if the first element of the pair is not 0
+            std::cout << kv.first << ": ";
+            std::cout << kv.second.first << ", " << kv.second.second;
+            std::cout << std::endl;
         }
     }
     cout << endl;

@@ -21,6 +21,7 @@ public:
     map<string, bool> bools;
     map<string, vector<double>> doubleVectors;
     map<string, vector<string>> stringVectors;
+    map<string, std::pair<double, double> > commaVectors;
 
     vector<string> originalArgv; //argv but in vector format
 
