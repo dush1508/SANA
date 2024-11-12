@@ -6,7 +6,8 @@ using namespace std;
 FMeasure::FMeasure(const Graph* G1, const Graph* G2, const double input_beta)
     : Measure(G1, G2, "f_beta") {
     
-    constexpr double density_threshold = ((3 - std::sqrt(2)) / 4);
+    const double density_threshold = (3 - std::sqrt(2)) / 4;
+
     
 
     if (input_beta == -1) {  
