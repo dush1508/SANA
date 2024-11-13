@@ -50,6 +50,7 @@ wrappedAlgorithms/PISWAP/networkx/*/*/*.pyc
 *.localscores
 sana.multi
 sana.float
+sana.weight
 parallel
 createShadow
 regression_test_baseline.txt

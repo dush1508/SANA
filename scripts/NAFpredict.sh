@@ -3,7 +3,7 @@
 EXEDIR=`dirname "$0"`; BASENAME=`basename "$0" .sh`; TAB='	'; NL='
 '
 #################### ADD YOUR USAGE MESSAGE HERE, and the rest of your code after END OF SKELETON ##################
-USAGE="$0 [-a] [-GO1freq k] gene2goWhich oldG1.el oldG2.el seqSim GO1 GO2 'tax1a|tax1b...' 'tax2a|tax2b|...' NAFthresh col1 col2 outName [files]
+USAGE="$0 [-a] [-GO1freq M] gene2goWhich oldG1.el oldG2.el seqSim GO1 GO2 'tax1a|tax1b...' 'tax2a|tax2b|...' NAFthresh col1 col2 outName [files]
 NOTE: predictions go to outName-p, validations to outName-v, summary to stdout
 where:
 seqSim is the file with sequence similarities/orthologs used to eliminate predictions possible to predict by sequence
@@ -19,7 +19,7 @@ gene2goWhich: should be NOSEQ, allGO, or any other extension that exists
 
 Options:
     -a : allow all predictions, even those not validatable (NOT recommended! default is to restrict to validatable)
-    -GO1freq k: remove predictions of GO terms with frequency above k"
+    -GO1freq M: remove predictions of GO terms with frequency above M"
 
 ################## SKELETON: DO NOT TOUCH CODE HERE
 # check that you really did add a usage message above
