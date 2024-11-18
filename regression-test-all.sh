@@ -114,8 +114,8 @@ for EXT in '' $EXECS; do
 	[ $NUM_FAILS -eq 0 ] || warn "cumulative number of compile failures is $NUM_FAILS"
     fi
     #[ -x "$EXE" ] || die "Executable '$EXE' must exist or you must specify -make"
-    # skip mpi, multi and float since they will be tested separately below
-    [ "$ext" = .multi -o "$ext" = .float -o "$ext" = .mpi ] && continue
+    # skip mpi, multi and weight since they will be tested separately below
+    [ "$ext" = .multi -o "$ext" = .weight -o "$ext" = .mpi ] && continue
     if ./$SANA_EXE$ext -tolerance 0 -itm 1 -s3 1 -g1 yeast -g2 human -tinitial 1 -tdecay 1 >/dev/null 2>&1; then
 	WORKING_EXECS="${WORKING_EXECS}$SANA_EXE$ext$TAB"
     else
@@ -135,7 +135,7 @@ WORKING_EXECS=`echo "$WORKING_EXECS" | newlines |
 
 export SANA_EXE SANA_DIR CORES REAL_CORES MAKE_CORES EXECS WORKING_EXECS
 
-echo WORKING EXECUTABLES: ${WORKING_EXECS:?"${NL}FATAL ERROR: cannot continue since there are no working pairwise executables!$NL(with the possible exception of float)"}
+echo WORKING EXECUTABLES: ${WORKING_EXECS:?"${NL}FATAL ERROR: cannot continue since there are no working pairwise executables!$NL(with the possible exception of weighted)"}
 
 STDBUF=''
 if which stdbuf >/dev/null; then
