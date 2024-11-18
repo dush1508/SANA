@@ -132,7 +132,7 @@ private:
     MeasureCombination* MC;
     double eval(const Alignment& A) const;
     double ecWeight, edWeight, erWeight, s3Weight, icsWeight, wecWeight, jsWeight, secWeight,
-           ncWeight, localWeight, mecWeight, sesWeight, eeWeight, ms3Weight, ewecWeight;
+           ncWeight, localWeight, mecWeight, sesWeight, eeWeight, ms3Weight, ewecWeight,f_betaWeight;
 
     //this should be refactored so that the return parameter is not the 9th one out of 15
     // changed in June 2020 to return pBad, not the decision itself. -WH
@@ -229,6 +229,9 @@ private:
     double localScoreSum;
     map<string, double> localScoreSumMap;
     vector<vector<float>> sims;
+
+    //beta_Value for the FMeasure
+    double beta_value;
 
     //to evaluate core scores    
 #ifdef CORES

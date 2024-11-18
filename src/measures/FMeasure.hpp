@@ -8,6 +8,7 @@ public:
     FMeasure(const Graph* G1,const Graph* G2,const double input_beta);
     virtual ~FMeasure();
     double eval(const Alignment& A);
+    double getBeta(){return beta;}
 private:
     double beta;
 
