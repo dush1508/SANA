@@ -3,9 +3,36 @@
 #include "../utils/utils.hpp"
 #include "../utils/FileIO.hpp"
 #include "SupportedArguments.hpp"
+#include <limits>
+#include <cctype>
 using namespace std;
 
+bool isValidSubstring(const std::string& substring) {
+    
+    size_t startIndex = 0;
 
+    // If the first character is a '-', start checking from the second character
+    if (substring[0] == '-') {
+        if (substring.size() == 1) {
+            return false; // A single '-' is invalid
+        }
+        startIndex = 1; // Start from the second character
+    }
+
+    // Check if the substring is a single '#'
+    if (substring == "#") {
+        return true; 
+    }
+
+    // Check if the substring consists only of digits (after handling optional '-')
+    for (size_t i = startIndex; i < substring.size(); ++i) {
+        if (!isdigit(substring[i])) {
+            return false; // If any character (except '-') is not a digit, it's invalid
+        }
+    }
+
+    return true; // All characters are valid (digits or single '-')
+}
 
 ArgumentParser::ArgumentParser(int argc, char* argv[]) {
     if(argc == 1) {
@@ -66,6 +93,7 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
         exit(0);
     }
 
+    bool passedFirstF_beta = false;
     for (uint i = 0; i < vArg.size(); i++) {
         string arg = vArg[i];
         if(strings.count(arg)) {
@@ -92,18 +120,32 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
         } else if (commaVectors.count(arg)){
             commaVectors[arg] = std::make_pair(0,-1);
             string commaBuffer = vArg[i+1];
-           
-            double weight_value = static_cast<double>( commaBuffer[0] - '0');
+            if(!isdigit(commaBuffer[0]))
+                throw std::runtime_error("The correct format for the f_beta parameter is: -f_beta weight,beta_value. Kindly ensure that this format is adhered to.\n");
+
+            if (commaBuffer.size() < 3) {
+                throw std::runtime_error("The correct format for the f_beta parameter is: -f_beta weight,beta_value. Kindly ensure that this format is adhered to.\n");
+            }
+
+            if(!isValidSubstring(commaBuffer.substr(2)) && commaBuffer.substr(2)!="inf"){
+                cout<<commaBuffer.substr(2)<<"\n";
+                throw std::runtime_error("The correct format for the f_beta parameter is: -f_beta weight,beta_value. Kindly ensure that this format is adhered to.\n");
+            }
+            
+            if(commaBuffer.substr(2)=="inf"){
+                throw std::runtime_error("f_beta does not accept infinity at the moment. Coming soon....\n");
+            }
             double beta_value = std::stod(commaBuffer.substr(2));
-            if( beta_value < 0)
-                runtime_error("The range of beta values is [0,inf). The current value is not in this range.\n");
+            if (beta_value < 0 && commaBuffer[2] != '#' && passedFirstF_beta )
+                throw runtime_error("The range of beta values is [0, inf) or #. The current value is not in this range.\n");
             
             if(commaBuffer[2] == '#')
-                commaVectors[arg] = std::make_pair((static_cast<double>( commaBuffer[0] - '0')),-1);  
+                commaVectors[arg] = std::make_pair((static_cast<double>( commaBuffer[0] - '0')),-1);
             else
-                commaVectors[arg] = std::make_pair((static_cast<double>( commaBuffer[0] - '0')),(static_cast<double>( commaBuffer[2] - '0')));
+                commaVectors[arg] = std::make_pair((static_cast<double>( commaBuffer[0] - '0')),(beta_value));
             
             i=i+1;
+            passedFirstF_beta = true;
         }
         else {
             // if (arg.size() > 1)  I *think* this was needed because of a bug in split that I just fixed. Not sure, so leaving it commented -Nil
@@ -147,7 +189,7 @@ void ArgumentParser::writeArguments() {
     for (const auto& kv : commaVectors) {
         if (kv.second.first != 0) {  // Check if the first element of the pair is not 0
             std::cout << kv.first << ": ";
-            std::cout << kv.second.first << ", " << kv.second.second;
+            std::cout << kv.second.first << "," << kv.second.second;
             std::cout << std::endl;
         }
     }

@@ -16,6 +16,7 @@
 #include "../utils/randomSeed.hpp"
 #include "../measures/ExternalWeightedEdgeConservation.hpp"
 #include "../measures/CoreScore.hpp"
+#include <limits>
 #if LIBWAYNE
 #include "../utils/Misc.hpp"
 #include "../utils/Stats.hpp"
@@ -51,6 +52,9 @@ public:
 
     double getEquilibriumPBadAtTemp(double temp, double maxTimeInS = 1.0, int logLevel = 1); //0 for no output, 2 for verbose
     list<pair<double, double>> ipsList;
+
+    //Defining infinity for f_beta
+    double inf = std::numeric_limits<double>::infinity();
 
 private:
     Alignment startA;
