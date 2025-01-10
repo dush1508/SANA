@@ -438,11 +438,18 @@ Alignment SANA::runUsingConfidenceIntervals() {
 		if(StatNumSamples(scoreBatchMeans)>=MIN_BATCHES){
 		    double scoreInterval, pBadInterval, relativeMultiplier;
 		    scoreInterval = pBadInterval = tolPerStep;
+
 		    // The user specifies a *relative* tolerance on the FINAL score... but we don't know what the final
 		    // score will be. Thus, early on when the score is low and pBad is high, we punt to using (effectively)
 		    // an abslotule tolerance by multiplying the tolerance by pBad. Then, as the score increases and
 		    // surpasses pBad, transition to a genuine relative tolerance by multiplying by the score.
 		    relativeMultiplier = MAX(StatMean(scoreBatchMeans), StatMean(pBadBatchMeans));
+
+		    // HOWEVER, we also slowly decrease the tolerance (by slowly increasing the Interval), because
+		    // sometimes we can get "stuck" for a VERY long time at one temperature because the score
+		    // is fluctuating too much. Let's not get stuck too long.
+		    relativeMultiplier *= (1+log(batchesPerTemperature));
+
 		    scoreInterval *= relativeMultiplier;
 		    pBadInterval *= relativeMultiplier;
 		    if( StatConfInterval(scoreBatchMeans, confidence) < scoreInterval &&
