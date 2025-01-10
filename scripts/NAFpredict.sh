@@ -3,7 +3,7 @@
 EXEDIR=`dirname "$0"`; BASENAME=`basename "$0" .sh`; TAB='	'; NL='
 '
 #################### ADD YOUR USAGE MESSAGE HERE, and the rest of your code after END OF SKELETON ##################
-USAGE="$0 [-a] [-GO1freq M] gene2goWhich oldG1.el oldG2.el seqSim GO1 GO2 'tax1a|tax1b...' 'tax2a|tax2b|...' NAFthresh col1 col2 outName [files]
+USAGE="$0 [-a] [-GO1freq M] gene2goWhich oldG1.el oldG2.el seqSim GO1 GO2 'tax1a|tax1b...' 'tax2a|tax2b|...' NAFthresh col1 col2 outName [*.align files]
 NOTE: predictions go to outName-p, validations to outName-v, summary to stdout
 where:
 seqSim is the file with sequence similarities/orthologs used to eliminate predictions possible to predict by sequence
@@ -67,6 +67,9 @@ c2=${11}
 outName=${12}
 shift 12
 
+dataDir=.
+echo "$@" | fgrep / >/dev/null && dataDir=`echo "$@" | newlines | sed 's,/[^/]*$,,' | sort -u`
+
 # Evidence codes: all, NOSEQ, and SEQ
 EVC_NOS="EXP HDA HEP HGI HMP IC IDA IEP IGI IKR IMP IMR IPI IRD NAS ND TAS"
 EVC_SEQ="IBA IEA IGC ISA ISM ISO ISS RCA"
@@ -103,7 +106,14 @@ $EXEDIR/Predictable.sh -GO1freq $GO1freq -gene2go $GENE2GO "$tax1" "$tax2" $GO1 
     cut -f1-3 | sort -u > $TMPDIR/Predictable.Vable.notGO1.notSEQ2.1-3 # final set (RECALL denom), without evidence codes
 #grep '	NOT	' $TMPDIR/* && die "NOT fields found after Predictable.sh was run"
 
-dataDir=`echo "$@" | newlines | sed 's,/[^/]*$,,' | sort -u`
+if [ ! -s $TMPDIR/Predictable.Vable -o ! -s $TMPDIR/Predictable.Vable.notGO1.notSEQ2 ]; then
+    view="ls -l"
+    which title >/dev/null && view="title"
+    eval $view $TMPDIR/Predictable.Vable*
+    echo "PIP is zero; nothing to process!"
+    exit 0
+fi
+
 sort "$@" | uniq -c | sort -nr | gawk '
     function ASSERT(cond,str){if(!cond){s=sprintf("ASSERTION failure, line %d of input file %s: %s\nInput line was:\n<%s>\n", FNR,FILENAME,str,$0); print s >"/dev/stderr"; exit 1}}
     BEGIN{tax1st="'"$tax1"'";tax2st="'"$tax2"'";
@@ -114,18 +124,18 @@ sort "$@" | uniq -c | sort -nr | gawk '
 	c1=1+'$c1';c2=1+'$c2'; # increment column since "uniq -c" above prepends NAF to the line
 	NAFthresh='$NAFthresh';
     }
-    ARGIND==1{seq[$1][$2]=1;next} # orthologous & sequence similar pairs
-    ARGIND==2{u=$c1;;v=$c2;
+    ARGIND==1 && /	NOT	/{next} # ignore "NOT" lines
+    ARGIND==1&&($1 in tax1){++GOp[1][$3][$2]; ++pGO[1][$2][$3][$4]; # species 1, protein, GO, evidence code
+    }
+    ARGIND==1&&($1 in tax2){++GOp[2][$3][$2]; ++pGO[2][$2][$3][$4]; # species 2, protein, GO, evidence code
+	C[$3]=$NF; # Category (BP,MF,CC)
+    }
+    ARGIND==2{seq[$1][$2]=1;next} # orthologous & sequence similar pairs
+    ARGIND==3{u=$c1;v=$c2;
 	if(u in seq && v in seq[u])next; # ignore known orthology or sequence similarity
 	NAF[u][v]=$1; # store ALL NAFs for now, not just those above the threshold, because
 	    # later we allow the total score of v to be additive across multiple nodes u.
 	next
-    }
-    ARGIND==3 && /	NOT	/{next} # ignore "NOT" lines
-    ARGIND==3&&($1 in tax1){++pGO[1][$2][$3][$4]; # species 1, protein, GO, evidence code
-    }
-    ARGIND==3&&($1 in tax2){++pGO[2][$2][$3][$4]; # species 2, protein, GO, evidence code
-	C[$3]=$NF; # Category (BP,MF,CC)
     }
     END{
 	ASSERT(isarray(pGO[1]), ARGV[3]" does not appear to have any annotations for first taxID list");
@@ -133,7 +143,8 @@ sort "$@" | uniq -c | sort -nr | gawk '
 	for(p1 in pGO[1]) # loop over all proteins in species1 that have any GO terms
 	    if(p1 in NAF) # if we have a predictive NAF value for that protein...
 		for(p2 in NAF[p1]) # loop over all the species2 proteins aligned to p1
-		    for(g in pGO[1][p1]) # loop over all the GO terms from protein p1
+		    # loop over all the GO terms from protein p1 that satisfy GO1freq:
+		    for(g in pGO[1][p1]) if(length(GOp[1][g])<='$GO1freq')
 			# if protein p2 is not listed at all in the gene2go file...
 			#... or if it is but does not have this particular GO term...
 			if(!(p2 in pGO[2]) ||!(g in pGO[2][p2]))
@@ -151,7 +162,7 @@ sort "$@" | uniq -c | sort -nr | gawk '
 		for(t in tax2) printf "%d\t%d\t%s\t%s\t%s\t%s\n",NAFpredict[2][p2][g][evc],t,p2,g,evc,C[g]
 		# Note, however, that when evc="ALL", grepping for the above line will not match any lines in a gene2go file.
 	    }
-    }' "$TMPDIR/seqSim" - "$GO1.$GENE2GO" |
+    }' "$GO1.$GENE2GO" "$TMPDIR/seqSim" - |
 	fgrep -v -f $TMPDIR/GO1.tax2.allGO.1-3 | # remove ones that are already known (with any evidence) at the earlier date
 	fgrep -v -f $TMPDIR/GO2.tax2.SEQ.1-3 |   # remove ones discovered using sequence evidence at later date
 	sort -nr | # sort highest first;do NOT remove duplicates: same p2 predicted from diff p1s (or diff evcs) has meaning
