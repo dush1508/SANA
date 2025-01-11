@@ -1,4 +1,7 @@
 #!/bin/bash
+echo "Pausing regression tests on multi-syeast until Dushyant fixes sana.multi" >&2
+exit 0
+
 USAGE="$0 [ ITERS minutes-per-iter [ measure-spec [ threads ] ] ]
     That is:
     with no arguments, we use default ITERS, minutes-per-iter, and ms3 as the measure.

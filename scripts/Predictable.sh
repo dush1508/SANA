@@ -92,15 +92,17 @@ egrep "^($tax1)	" $GO1.$GENE2GO | cut -f1-5,8 > $TMPDIR/GO1.tax1.$GENE2GO.1-5,8
 	    # Vable means "validatable", ie., is among the set we are trying to predict at time t2
 	    ++Vable[$2][$3][$1][$4] # if GO2 is NONE, this never gets executed and Vable will not exist
 	}
-	ARGIND==2{V2[$1]=V2[$2]=1;next} # get list of nodes at earlier date in target species
+	ARGIND==2{if(!isarray(Vable)) {printf "Hmm, Vable is not an array" > "/dev/stderr"; exit 1}
+	    if(NF!=2){printf "\nFATAL ERROR: edgeList \"%s\" should have exactly 2 columns\n", FILENAME >"/dev/stderr";exit 1}
+	    V2[$1]=V2[$2]=1;next; # get list of nodes at earlier date in target species
+	}
 	ARGIND==3{++GO1freq[$3];GO1tax1[$3][$4]=1;Cat[$3]=$NF} # term,evCode,Category from source species, earlier date
 	END{
 	    # predictable annotation if node is in earlier target network and earlier source network has such a GO term
-	    for(p in V2) for(g in GO1tax1) if(g in GO1freq && GO1freq[g] < '$GO1freq') for(e in GO1tax1[g])
+	    for(p in V2) for(g in GO1tax1) if(g in GO1freq && GO1freq[g] <= '$GO1freq') for(e in GO1tax1[g])
 		# if not filtering on validatable, or if annotation (p,g) is validatable:
-		if(!isarray(Vable) || (p in Vable && g in Vable[p]))
-		    for(t in Vable[p][g]) if(e in Vable[p][g][t])
-			printf "%d\t%s\t%s\t%s\t%s\n",t,p,g,e,Cat[g]
+		if(p in Vable && g in Vable[p]) for(t in Vable[p][g]) if(e in Vable[p][g][t])
+		    printf "%d\t%s\t%s\t%s\t%s\n",t,p,g,e,Cat[g]
 		    # Would could be even more specific here and when we copy a GO term from p1\in V1 to p2\in V2,
 		    # we list *only* the (GO,evc) pairs assigned to p1, rather than all (GO,evc) pairs seen across all of V1.
 		    # But that would require changing our whole code. Thus, NOT NOW!
