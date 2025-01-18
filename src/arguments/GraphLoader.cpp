@@ -18,6 +18,7 @@
 #include <type_traits>
 
 using namespace std;
+bool GraphLoader::shadowWeights = false;
 
 pair<Graph,Graph> GraphLoader::initGraphs(ArgumentParser& args) {
     cout << "Initializing graphs..." << endl;
@@ -44,6 +45,7 @@ pair<Graph,Graph> GraphLoader::initGraphs(ArgumentParser& args) {
   #error multipairwise currently does not support float weights
  #else
     g1HasWeights = false, g2HasWeights = true; //g1 is unweighted and g2 (the shadow) is weighted
+    shadowWeights = true;
  #endif
 #elif WEIGHT
     g1HasWeights = true, g2HasWeights = true;
@@ -319,6 +321,18 @@ Graph GraphLoader::loadGraphFromGWFile(const string& graphName, const string& fi
         edgeWeights.push_back((EDGE_T) w);
     }
     return Graph(graphName, fileName, gwData.edgeList, gwData.nodeNames, edgeWeights, {});
+#else 
+    if(shadowWeights){
+    vector<EDGE_T> edgeWeights;
+    edgeWeights.reserve(gwData.edgeWeights.size());
+    for (auto w : gwData.edgeWeights) {
+        assert((std::is_same<decltype(w), int>::value) && "Cannot load Non-integer weight from GW file");
+        assert(w >= 0 and "graph cannot have negative weights");
+        assert(w < (1L << 8*sizeof(EDGE_T)) -1 and "EDGE_T type is not wide enough for these weights");
+        edgeWeights.push_back((EDGE_T) w);
+    }
+    return Graph(graphName, fileName, gwData.edgeList, gwData.nodeNames, edgeWeights, {});
+    }
 #endif
 }
 
