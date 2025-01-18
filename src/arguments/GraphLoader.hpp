@@ -50,6 +50,7 @@ public:
     //utility (todo: consider moving them to utils)
     static vector<array<string, 2>> rawTwoColumnFileData(const string& outFile);
     static void saveTwoColumnData(const vector<array<string, 2>>& rows, const string& outFile);
+    static bool shadowWeights;
 
 private:
     //functions to extract raw data from the file and process it as necessary
