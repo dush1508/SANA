@@ -9,6 +9,7 @@ public:
     virtual ~FMeasure();
     double eval(const Alignment& A);
     double getBeta(){return beta;}
+    double inf = std::numeric_limits<double>::infinity();
 private:
     double beta;
 
