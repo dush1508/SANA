@@ -120,30 +120,45 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
         } else if (commaVectors.count(arg)){
             commaVectors[arg] = std::make_pair(0,-1);
             string commaBuffer = vArg[i+1];
-            if(!isdigit(commaBuffer[0]))
+            cout<<commaBuffer<<endl;
+            std::string::size_type commaPos = commaBuffer.find(',');
+            if (commaPos == std::string::npos) {
                 throw std::runtime_error("The correct format for the f_beta parameter is: -f_beta weight,beta_value. Kindly ensure that this format is adhered to.\n");
+            }
 
+            std::string weightStr = commaBuffer.substr(0, commaPos);
+            try {
+                double weight = std::stod(weightStr);
+                if (weight < 0 || weight > 1) {
+                    throw std::runtime_error("The weight must be a number between 0 and 1, inclusive.\n");
+                }
+            } catch (const std::invalid_argument& e) {
+                throw std::runtime_error("The weight before the comma must be a valid number.\n");
+            }
             if (commaBuffer.size() < 3) {
                 throw std::runtime_error("The correct format for the f_beta parameter is: -f_beta weight,beta_value. Kindly ensure that this format is adhered to.\n");
             }
-
-            if(!isValidSubstring(commaBuffer.substr(2)) && commaBuffer.substr(2)!="inf"){
-                cout<<commaBuffer.substr(2)<<"\n";
+            if (!isValidSubstring(commaBuffer.substr(commaBuffer.find(',') + 1)) && commaBuffer.substr(commaBuffer.find(',') + 1) != "inf") {
+                std::cout << commaBuffer.substr(commaBuffer.find(',') + 1) << "\n";
                 throw std::runtime_error("The correct format for the f_beta parameter is: -f_beta weight,beta_value. Kindly ensure that this format is adhered to.\n");
             }
-            
-            //if(commaBuffer.substr(2)=="inf"){
-            //    throw std::runtime_error("f_beta does not accept infinity at the moment. Coming soon....\n");
-            //}
-            double beta_value = std::stod(commaBuffer.substr(2));
-            if (beta_value < 0 && commaBuffer[2] != '#' && passedFirstF_beta )
-                throw runtime_error("The range of beta values is [0, inf) or #. The current value is not in this range.\n");
-            
-            if(commaBuffer[2] == '#')
-                commaVectors[arg] = std::make_pair((static_cast<double>( commaBuffer[0] - '0')),-1);
-            else
-                commaVectors[arg] = std::make_pair((static_cast<double>( commaBuffer[0] - '0')),(beta_value));
-            
+
+            // Uncomment if you want to handle infinity
+            // if (commaBuffer.substr(commaBuffer.find(',') + 1) == "inf") {
+            //     throw std::runtime_error("f_beta does not accept infinity at the moment. Coming soon....\n");
+            // }
+
+            double beta_value = std::stod(commaBuffer.substr(commaBuffer.find(',') + 1));
+            if (beta_value < 0 && commaBuffer[commaBuffer.find(',') + 1] != '#' && passedFirstF_beta) {
+                throw std::runtime_error("The range of beta values is [0, inf) or #. The current value is not in this range.\n");
+            }
+
+            if (commaBuffer[commaBuffer.find(',') + 1] == '#') {
+                commaVectors[arg] = std::make_pair(static_cast<double>(std::stod(weightStr)), -1);
+            } else {
+                commaVectors[arg] = std::make_pair(static_cast<double>(std::stod(weightStr)), beta_value);
+            }
+ 
             i=i+1;
             passedFirstF_beta = true;
         }

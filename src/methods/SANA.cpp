@@ -944,6 +944,9 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         // this is a terrible way to compute the max; we should loop through all of them and figure out which is the biggest
         // and in fact we haven't yet integrated icsWeight here yet, so assert so
         assert(icsWeight == 0.0);
+        if(beta_value==inf){
+            assert(f_betaWeight == 0.0);
+        }
         // double energyInc = max(ncWeight* (newNcSum / trueAWithValidCountAppended.back() - ncSum / trueAWithValidCountAppended.back()), max(max(ecWeight*(newAligEdges / g1Edges - aligEdges / g1Edges), max( s3Weight*((newAligEdges / (g1Edges + newInducedEdges - newAligEdges) - (aligEdges / (g1Edges + inducedEdges - aligEdges)))), secWeight*0.5*(newAligEdges / g1Edges - aligEdges / g1Edges + newAligEdges / g2Edges - aligEdges / g2Edges))), max(localWeight*((newLocalScoreSum / n1) - (localScoreSum)), max(wecWeight*(newWecSum / (2 * g1Edges) - wecSum / (2 * g1Edges)), jsWeight*(newJsSum - jsSum)))));
 
         newCurrentScore += ecWeight?ecWeight * (newAligEdges / g1Edges):0;
@@ -968,6 +971,9 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
     {
         // see comment above in max
         assert(icsWeight == 0.0);
+        if(beta_value==inf){
+            assert(f_betaWeight == 0.0);
+        }
         //double energyInc = min(ncWeight* (newNcSum / trueAWithValidCountAppended.back() - ncSum / trueAWithValidCountAppended.back()), min(min(ecWeight*(newAligEdges / g1Edges - aligEdges / g1Edges), min( s3Weight*((newAligEdges / (g1Edges + newInducedEdges - newAligEdges) - (aligEdges / (g1Edges + inducedEdges - aligEdges)))), secWeight*0.5*(newAligEdges / g1Edges - aligEdges / g1Edges + newAligEdges / g2Edges - aligEdges / g2Edges))), min(localWeight*((newLocalScoreSum / n1) - (localScoreSum)), min(wecWeight*(newWecSum / (2 * g1Edges) - wecSum / (2 * g1Edges)), jsWeight*(newJsSum - jsSum)))));
 
         newCurrentScore += ecWeight?ecWeight * (newAligEdges / g1Edges):0;
@@ -1003,7 +1009,7 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         }else{
             newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
         }
-
+        
         energyInc = newCurrentScore - currentScore;
         wasBadMove = energyInc < 0;
         break;
@@ -1011,6 +1017,9 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
     case ScoreAggregation::maxFactor:
     {
         assert(icsWeight == 0.0);
+        if(beta_value==inf){
+            assert(f_betaWeight == 0.0);
+        }
         double maxScore = max(ncWeight*(newNcSum / trueAWithValidCountAppended.back() - ncSum / trueAWithValidCountAppended.back()), max(max(ecWeight*(newAligEdges / g1Edges - aligEdges / g1Edges), max(
             s3Weight*((newAligEdges / (g1Edges + newInducedEdges - newAligEdges) - (aligEdges / (g1Edges + inducedEdges - aligEdges)))),
             secWeight*0.5*(newAligEdges / g1Edges - aligEdges / g1Edges + newAligEdges / g2Edges - aligEdges / g2Edges))),
@@ -1034,7 +1043,7 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         if(beta_value==inf){
             newCurrentScore += f_betaWeight?f_betaWeight * (newAligEdges / newInducedEdges):0;
         }else{
-            newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
         }
         
         energyInc = newCurrentScore - currentScore;
