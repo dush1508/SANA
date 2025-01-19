@@ -132,9 +132,9 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
                 throw std::runtime_error("The correct format for the f_beta parameter is: -f_beta weight,beta_value. Kindly ensure that this format is adhered to.\n");
             }
             
-            if(commaBuffer.substr(2)=="inf"){
-                throw std::runtime_error("f_beta does not accept infinity at the moment. Coming soon....\n");
-            }
+            //if(commaBuffer.substr(2)=="inf"){
+            //    throw std::runtime_error("f_beta does not accept infinity at the moment. Coming soon....\n");
+            //}
             double beta_value = std::stod(commaBuffer.substr(2));
             if (beta_value < 0 && commaBuffer[2] != '#' && passedFirstF_beta )
                 throw runtime_error("The range of beta values is [0, inf) or #. The current value is not in this range.\n");

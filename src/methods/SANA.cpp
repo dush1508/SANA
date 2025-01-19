@@ -901,7 +901,11 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         newCurrentScore += jsWeight?jsWeight * (newJsSum):0;
         newCurrentScore += ewecWeight?ewecWeight * (newEwecSum):0;
         newCurrentScore += ncWeight?ncWeight * (newNcSum / trueAWithValidCountAppended.back()):0;
-        newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        if(beta_value==inf){
+            newCurrentScore += f_betaWeight?f_betaWeight * (newAligEdges / newInducedEdges):0;
+        }else{
+            newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        }
         
 #if defined(MULTI_PAIRWISE) || defined(MULTI_MPI)
         newCurrentScore += mecWeight?mecWeight * (newAligEdges / (g1TotalWeight + g2TotalWeight)):0;
@@ -925,8 +929,12 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         newCurrentScore *= wecWeight?wecWeight * (newWecSum / (2 * g1Edges)):0;
         newCurrentScore *= jsWeight?jsWeight * (newJsSum):0;
         newCurrentScore *= ncWeight?ncWeight * (newNcSum / trueAWithValidCountAppended.back()):0;
-        newCurrentScore *= f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
-        
+        if(beta_value==inf){
+            newCurrentScore *= f_betaWeight?f_betaWeight * (newAligEdges / newInducedEdges):0;
+        }else{
+            newCurrentScore *= f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        }
+
         energyInc = newCurrentScore - currentScore;
         wasBadMove = energyInc < 0;
         break;
@@ -946,8 +954,11 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         newCurrentScore += wecWeight?wecWeight * (newWecSum / (2 * g1Edges)):0;
         newCurrentScore += jsWeight?jsWeight * (newJsSum):0;
         newCurrentScore += ncWeight?ncWeight * (newNcSum / trueAWithValidCountAppended.back()):0;
-        newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
-    
+        if(beta_value==inf){
+            newCurrentScore += f_betaWeight?f_betaWeight * (newAligEdges / newInducedEdges):0;
+        }else{
+            newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        }
         
         energyInc = newCurrentScore - currentScore;
         wasBadMove = energyInc < 0;
@@ -967,8 +978,12 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         newCurrentScore += wecWeight?wecWeight * (newWecSum / (2 * g1Edges)):0;
         newCurrentScore += jsWeight?jsWeight * (newJsSum):0;
         newCurrentScore += ncWeight?ncWeight * (newNcSum / trueAWithValidCountAppended.back()):0;
-        newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
-        
+        if(beta_value==inf){
+            newCurrentScore += f_betaWeight?f_betaWeight * (newAligEdges / newInducedEdges):0;
+        }else{
+            newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        }
+
         energyInc = newCurrentScore - currentScore;
         wasBadMove = energyInc < 0;
         break;
@@ -983,8 +998,12 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         newCurrentScore += wecWeight?wecWeight / (newWecSum / (2 * g1Edges)):0;
         newCurrentScore += jsWeight?jsWeight * (newJsSum):0;
         newCurrentScore += ncWeight?ncWeight / (newNcSum / trueAWithValidCountAppended.back()):0;
-        newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
-        
+        if(beta_value==inf){
+            newCurrentScore += f_betaWeight?f_betaWeight * (newAligEdges / newInducedEdges):0;
+        }else{
+            newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        }
+
         energyInc = newCurrentScore - currentScore;
         wasBadMove = energyInc < 0;
         break;
@@ -1012,7 +1031,11 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         newCurrentScore += wecWeight?wecWeight * (newWecSum / (2 * g1Edges)):0;
         newCurrentScore += jsWeight?jsWeight * (newJsSum):0;
         newCurrentScore += ncWeight?ncWeight * (newNcSum / trueAWithValidCountAppended.back()):0;
-        newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        if(beta_value==inf){
+            newCurrentScore += f_betaWeight?f_betaWeight * (newAligEdges / newInducedEdges):0;
+        }else{
+            newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        }
         
         energyInc = newCurrentScore - currentScore;
         wasBadMove = maxScore < -1 * minScore;
