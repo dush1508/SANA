@@ -7,7 +7,7 @@ public:
     EdgeRatio(const Graph* G1, const Graph* G2);
     virtual ~EdgeRatio();
     double eval(const Alignment& A);
-    static double adjustSumToTargetScore(double edgeRatioSum, uint pairsCount);
+    static double adjustSumToTargetScore(const Graph *G1, const Graph *G2, double edgeRatioSum);
     static double getEdgeRatioSum(const Graph *G1, const Graph *G2, const Alignment &A);
 private:
     const int kErrorScore = -2;

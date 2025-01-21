@@ -9,10 +9,8 @@ double EdgeRatio::eval(const Alignment& A) {
 #ifndef WEIGHT
     return kErrorScore;
 #else
-    uint n = G1->getNumNodes();
     double edgeRatioSum = getEdgeRatioSum(G1, G2, A);
-    uint pairsCount = (n * (n+1))/2;
-    return adjustSumToTargetScore(edgeRatioSum, pairsCount);
+    return adjustSumToTargetScore(G1,G2,edgeRatioSum);
 #endif
 }
 
@@ -35,9 +33,9 @@ double EdgeRatio::getEdgeRatioSum(const Graph *G1, const Graph *G2, const Alignm
 #endif
 }
 
-double EdgeRatio::adjustSumToTargetScore(double edgeRatioSum, uint pairsCount) {
-    double mean = edgeRatioSum / pairsCount;
-    return mean;
+double EdgeRatio::adjustSumToTargetScore(const Graph *G1, const Graph *G2, double edgeRatioSum) {
+    // The maximum possible score is attained during a correct self-alignment, in which case every edge has a ratio of 1.
+    return edgeRatioSum / min(G1->getNumEdges(), G2->getNumEdges());
 }
 
 double EdgeRatio::getRatio(double w1, double w2) {

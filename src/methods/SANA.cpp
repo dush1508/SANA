@@ -67,7 +67,6 @@ SANA::SANA(const Graph* G1, const Graph* G2,
     m1 = G1->getNumEdges(); m2 = G2->getNumEdges();
     g1Edges = G1->getNumEdges(); g2Edges = G2->getNumEdges();
     g1TotalWeight = G1->getTotalEdgeWeight(); g2TotalWeight = G2->getTotalEdgeWeight();
-    pairsCount = n1 * (n1 + 1) / 2;
 
     if      (scoreAggrStr == "sum")       scoreAggr = ScoreAggregation::sum;
     else if (scoreAggrStr == "product")   scoreAggr = ScoreAggregation::product;
@@ -890,8 +889,8 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
     case ScoreAggregation::sum:
     {
         newCurrentScore += ecWeight?ecWeight * (newAligEdges / g1Edges):0;
-        newCurrentScore += edWeight?edWeight * EdgeDifference::adjustSumToTargetScore(newEdgeDifferenceSum, pairsCount):0;
-        newCurrentScore += erWeight?erWeight * EdgeRatio::adjustSumToTargetScore(newEdgeRatioSum, pairsCount):0;
+        newCurrentScore += edWeight?edWeight * EdgeDifference::adjustSumToTargetScore(G1,G2,newEdgeDifferenceSum):0;
+        newCurrentScore += erWeight?erWeight * EdgeRatio::adjustSumToTargetScore(G1,G2,newEdgeRatioSum):0;
         newCurrentScore += s3Weight?s3Weight * (newAligEdges / (g1Edges + newInducedEdges - newAligEdges)):0;
         newCurrentScore += icsWeight?icsWeight * (newAligEdges / newInducedEdges):0;
         newCurrentScore += secWeight?secWeight * (newAligEdges / g1Edges + newAligEdges / g2Edges)*0.5:0;
