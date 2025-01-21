@@ -6,7 +6,7 @@ EdgeRatio::EdgeRatio(const Graph* G1, const Graph* G2): Measure(G1, G2, "er") {}
 EdgeRatio::~EdgeRatio() {}
 
 double EdgeRatio::eval(const Alignment& A) {
-#ifndef WEIGHTS
+#ifndef WEIGHT
     return kErrorScore;
 #else
     uint n = G1->getNumNodes();
@@ -18,7 +18,7 @@ double EdgeRatio::eval(const Alignment& A) {
 
 
 double EdgeRatio::getEdgeRatioSum(const Graph *G1, const Graph *G2, const Alignment &A) {
-#ifndef WEIGHTS
+#ifndef WEIGHT
     return 0;
 #else
     double edgeRatioSum = 0;

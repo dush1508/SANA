@@ -1086,7 +1086,7 @@ int SANA::aligEdgesIncChangeOp(uint peg, uint oldHole, uint newHole) {
 }
 
 int SANA::aligEdgesIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2) {
-#ifdef WEIGHTS
+#ifdef WEIGHT
     return 0; //not applicable
 #else
     int res = 0;
@@ -1121,7 +1121,7 @@ int SANA::aligEdgesIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2) {
     if (G1->hasEdge(peg1, peg2) and G2->hasEdge(hole1, hole2)) res += 2;
 #endif
     return res;
-#endif // WEIGHTS
+#endif // WEIGHT
 }
 
 static double getRatio(double w1, double w2) {
