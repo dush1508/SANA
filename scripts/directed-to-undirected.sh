@@ -5,7 +5,7 @@ EXEDIR=`dirname "$0"`; BASENAME=`basename "$0" .sh`; TAB='	'; NL='
 #################### ADD YOUR USAGE MESSAGE HERE, and the rest of your code after END OF SKELETON ##################
 USAGE="USAGE: $BASENAME input-edge-list
 PURPOSE: take a (weighted or unweighted) directed edge list and for each edge, if both directions exist then print only
-    the edge with the higher weight (be sure to remove any header line yourself). Self-loops are also removed."
+    the edge with the higher weight (be sure to remove any header line yourself)."
 
 ################## SKELETON: DO NOT TOUCH CODE HERE
 # check that you really did add a usage message above
@@ -24,7 +24,7 @@ which(){ echo "$PATH" | tr : "$NL" | awk '!seen[$0]{print}{++seen[$0]}' | while 
 
 [ $# -le 1 ] || die "expecting at most one filename [otherwise use stdin]"
 
-sed 's///' "$@" | tr , "$TAB" | awk '$1!=$2' |
+sed 's///' "$@" | tr , "$TAB" |
     hawk '{ASSERT(NF==2||NF==3,"must have 2 or 3 columns");if(NF==3)ASSERT(1*$3,"third column is not a number");}
 	($2 in edge) && ($1 in edge[$2]){
 	    if(ABS($3)>ABS(edge[$2][$1]))

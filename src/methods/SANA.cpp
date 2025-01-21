@@ -627,12 +627,11 @@ void SANA::SANAIteration() {
     ++iterationsPerformed;
     uint actColId = randActiveColorIdWeightedByNumNbrs();
     double p = randomReal(gen);
-    if (p < actColToChangeProb[actColId]) {
-        performChange(actColId);
-	assert(!std::isnan(currentScore));
-    } else {
-        performSwap(actColId);
-	assert(!std::isnan(currentScore));
+    if (p < actColToChangeProb[actColId]) performChange(actColId);
+    else performSwap(actColId);
+    assert(!std::isnan(currentScore));
+    if(std::isinf(currentScore)) {
+	throw runtime_error("currentScore is inf; this might happen if there are self-loops (not otherwise detected)");
     }
 }
 
