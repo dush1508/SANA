@@ -5,6 +5,7 @@
 #include "../measures/EdgeCorrectness.hpp"
 #include "../measures/EdgeDifference.hpp"
 #include "../measures/EdgeRatio.hpp"
+#include "../measures/EdgeMin.hpp"
 #include "../measures/InducedConservedStructure.hpp"
 #include "../measures/SymmetricSubstructureScore.hpp"
 #include "../measures/JaccardSimilarityScore.hpp"
@@ -89,7 +90,7 @@ double getAlpha(const Graph& G1, const Graph& G2, ArgumentParser& args) {
 
 double totalGenericWeight(ArgumentParser& args) {
     vector<string> optimizableDoubleMeasures = {
-        "ec", "ec1", "ec2", "ed","er","s3","js","ics","tc","sec","wec","nodec","noded","edgec","edged", "go",
+        "ec", "ec1", "ec2", "ed","er","emin","s3","js","ics","tc","sec","wec","nodec","noded","edgec","edged", "go",
         "importance", "sequence","graphlet","graphletlgraal", "graphletcosine", "graphletnorm", "spc", "nc",
         "mec", "ewec", "ses", "ee", "ms3"
     };
@@ -163,26 +164,17 @@ void initMeasures(MeasureCombination& M, const Graph& G1, const Graph& G2, Argum
 
     Measure *m;
     m = new EdgeCorrectness(&G1, &G2, 1);
-    M.addMeasure(m, getWeight("ec", G1, G2, args));
-    M.addMeasure(m, getWeight("ec1", G1, G2, args));
-    m = new EdgeCorrectness(&G1, &G2, 2);
-    M.addMeasure(m, getWeight("ec2", G1, G2, args));
-    m = new EdgeDifference(&G1, &G2);
-    M.addMeasure(m, getWeight("ed", G1, G2, args));
-    m = new JaccardSimilarityScore(&G1, &G2);
-    M.addMeasure(m, getWeight("js", G1, G2, args));
-    m = new EdgeRatio(&G1, &G2);
-    M.addMeasure(m, getWeight("er", G1, G2, args));
-    m = new InducedConservedStructure(&G1, &G2);
-    M.addMeasure(m, getWeight("ics", G1, G2, args));
-    m = new MultiEdgeCorrectness(&G1, &G2);
-    M.addMeasure(m, getWeight("mec", G1, G2, args));
-    m = new SquaredEdgeScore(&G1, &G2);
-    M.addMeasure(m, getWeight("ses", G1, G2, args));
-	m = new EdgeExposure(&G1, &G2);
-    M.addMeasure(m, getWeight("ee", G1, G2, args));
-    m = new FMeasure(&G1, &G2,args.commaVectors["-f_beta"].second);
-    M.addMeasure(m, getWeight("f_beta", G1, G2, args));
+    M.addMeasure(m, getWeight("ec", G1, G2, args)); M.addMeasure(m, getWeight("ec1", G1, G2, args));
+    m = new EdgeCorrectness(&G1, &G2, 2); M.addMeasure(m, getWeight("ec2", G1, G2, args));
+    m = new EdgeDifference(&G1, &G2); M.addMeasure(m, getWeight("ed", G1, G2, args));
+    m = new JaccardSimilarityScore(&G1, &G2); M.addMeasure(m, getWeight("js", G1, G2, args));
+    m = new EdgeRatio(&G1, &G2); M.addMeasure(m, getWeight("er", G1, G2, args));
+    m = new EdgeMin(&G1, &G2); M.addMeasure(m, getWeight("emin", G1, G2, args));
+    m = new InducedConservedStructure(&G1, &G2); M.addMeasure(m, getWeight("ics", G1, G2, args));
+    m = new MultiEdgeCorrectness(&G1, &G2); M.addMeasure(m, getWeight("mec", G1, G2, args));
+    m = new SquaredEdgeScore(&G1, &G2); M.addMeasure(m, getWeight("ses", G1, G2, args));
+    m = new EdgeExposure(&G1, &G2); M.addMeasure(m, getWeight("ee", G1, G2, args));
+    m = new FMeasure(&G1, &G2,args.commaVectors["-f_beta"].second); M.addMeasure(m, getWeight("f_beta", G1, G2, args));
     
     MultiS3::NumeratorType _numerator_type;
     MultiS3::DenominatorType _denominator_type;

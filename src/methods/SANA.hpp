@@ -135,7 +135,7 @@ private:
     //objective function
     MeasureCombination* MC;
     double eval(const Alignment& A) const;
-    double ecWeight, edWeight, erWeight, s3Weight, icsWeight, wecWeight, jsWeight, secWeight,
+    double ecWeight, edWeight, erWeight, eminWeight, s3Weight, icsWeight, wecWeight, jsWeight, secWeight,
            ncWeight, localWeight, mecWeight, sesWeight, eeWeight, ms3Weight, ewecWeight,f_betaWeight;
 
     //this should be refactored so that the return parameter is not the 9th one out of 15
@@ -144,7 +144,7 @@ private:
         double newLocalScoreSum, double newWecSum, 
         double newJsSum, double newNcSum, double& newCurrentScore, 
         double newEwecSum, double newSquaredAligEdges, double newExposedEdgesNumer, 
-        double newMS3Numer, double newEdgeDifferenceSum, double newEdgeRatioSum);
+        double newMS3Numer, double newEdgeDifferenceSum, double newEdgeRatioSum, double newEdgeMinSum);
 
     enum class ScoreAggregation{sum, product, inverse, max, min, maxFactor};
     ScoreAggregation scoreAggr;
@@ -158,12 +158,14 @@ private:
     int aligEdgesIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2);
 
     // to evaluate ED (edge difference score) incrementally
-    bool needEd, needEr;
-    double edSum, erSum;
+    bool needEd, needEr, needEmin;
+    double edSum, erSum, eminSum;
     double edgeDifferenceIncChangeOp(uint peg, uint oldHole, uint newHole);
     double edgeDifferenceIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2);
     double edgeRatioIncChangeOp(uint peg, uint oldHole, uint newHole);
     double edgeRatioIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2);
+    double edgeMinIncChangeOp(uint peg, uint oldHole, uint newHole);
+    double edgeMinIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2);
 
     // to evaluate SES incrementally
     bool needSquaredAligEdges;

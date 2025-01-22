@@ -29,6 +29,7 @@
 #include "../measures/EdgeCorrectness.hpp"
 #include "../measures/EdgeDifference.hpp"
 #include "../measures/EdgeRatio.hpp"
+#include "../measures/EdgeMin.hpp"
 #include "../measures/SquaredEdgeScore.hpp"
 #include "../measures/WeightedEdgeConservation.hpp"
 #include "../measures/NodeCorrectness.hpp"
@@ -99,6 +100,7 @@ SANA::SANA(const Graph* G1, const Graph* G2,
     ecWeight  = MC->getWeight("ec");
     edWeight  = MC->getWeight("ed");
     erWeight  = MC->getWeight("er");
+    eminWeight  = MC->getWeight("emin");
     s3Weight  = MC->getWeight("s3");
     jsWeight  = MC->getWeight("js");
     icsWeight = MC->getWeight("ics");
@@ -133,6 +135,7 @@ SANA::SANA(const Graph* G1, const Graph* G2,
     needAligEdges        = icsWeight > 0 or ecWeight > 0 or s3Weight > 0 or wecWeight > 0 or secWeight > 0 or mecWeight > 0 or f_betaWeight > 0;
     needEd               = edWeight > 0; //edge difference
     needEr               = erWeight > 0; //edge ratio
+    needEmin              = eminWeight > 0; //edge ratio
     needSquaredAligEdges = sesWeight > 0; //SES
     needExposedEdges     = eeWeight > 0 or MultiS3::denominator_type == MultiS3::ee_global; //EE; if needMS3, might use EE as denom
     needMS3              = ms3Weight > 0;
@@ -287,6 +290,7 @@ void SANA::initDataStructures() {
     if (needAligEdges or needSec) aligEdges = alig.numAlignedEdges(*G1, *G2);
     if (needEd) edSum = EdgeDifference::getEdgeDifferenceSum(G1, G2, alig);
     if (needEr) erSum = EdgeRatio::getEdgeRatioSum(G1, G2, alig);
+    if (needEmin) eminSum = EdgeMin::getEdgeMinSum(G1, G2, alig);
     if (needSquaredAligEdges) squaredAligEdges =
             ((SquaredEdgeScore*) MC->getMeasure("ses"))->numSquaredAlignedEdges(alig);
     if (needExposedEdges) EdgeExposure::numer = 
@@ -711,6 +715,7 @@ void SANA::performChange(uint actColId) {
     int newAligEdges           = (needAligEdges or needSec) ? aligEdges + aligEdgesIncChangeOp(peg, oldHole, newHole) : -1;
     double newEdSum            = needEd ? edSum + edgeDifferenceIncChangeOp(peg, oldHole, newHole) : -1;
     double newErSum            = needEr ? erSum + edgeRatioIncChangeOp(peg, oldHole, newHole) : -1;
+    double newEminSum          = needEmin ? eminSum + edgeMinIncChangeOp(peg, oldHole, newHole) : -1;
     double newSquaredAligEdges = needSquaredAligEdges ? squaredAligEdges + squaredAligEdgesIncChangeOp(peg, oldHole, newHole) : -1;
     double newExposedEdgesNumer= needExposedEdges ? EdgeExposure::numer + exposedEdgesIncChangeOp(peg, oldHole, newHole) : -1;
     double newMS3Numer         = needMS3 ? MultiS3::numer + MS3IncChangeOp(peg, oldHole, newHole) : -1;
@@ -731,7 +736,7 @@ void SANA::performChange(uint actColId) {
     double newCurrentScore = 0;
     double pBad = scoreComparison(newAligEdges, newInducedEdges,
             newLocalScoreSum, newWecSum, newJsSum, newNcSum, newCurrentScore, newEwecSum,
-            newSquaredAligEdges, newExposedEdgesNumer, newMS3Numer, newEdSum, newErSum);
+            newSquaredAligEdges, newExposedEdgesNumer, newMS3Numer, newEdSum, newErSum, newEminSum);
     assert(!std::isnan(newCurrentScore));
     bool makeChange;
     //if(newCurrentScore == currentScore) makeChange = false; else // if it ain't broke, don't fix it
@@ -761,6 +766,7 @@ void SANA::performChange(uint actColId) {
         aligEdges                     = newAligEdges;
         edSum                         = newEdSum;
         erSum                         = newErSum;
+        eminSum                       = newEminSum;
         inducedEdges                  = newInducedEdges;
         localScoreSum                 = newLocalScoreSum;
         wecSum                        = newWecSum;
@@ -821,6 +827,7 @@ void SANA::performSwap(uint actColId) {
     double newLocalScoreSum    = needLocal ? localScoreSum + localScoreSumIncSwapOp(sims, peg1, peg2, hole1, hole2) : -1;
     double newEdSum            = needEd ? edSum + edgeDifferenceIncSwapOp(peg1, peg2, hole1, hole2) : -1;
     double newErSum            = needEr ? erSum + edgeRatioIncSwapOp(peg1, peg2, hole1, hole2) : -1;
+    double newEminSum          = needEmin ? eminSum + edgeMinIncSwapOp(peg1, peg2, hole1, hole2) : -1;
 
     map<string, double> newLocalScoreSumMap;
     if (needLocal) {
@@ -832,7 +839,7 @@ void SANA::performSwap(uint actColId) {
     double newCurrentScore = 0;
     double pBad = scoreComparison(newAligEdges, inducedEdges, newLocalScoreSum,
                 newWecSum, newJsSum, newNcSum, newCurrentScore, newEwecSum, newSquaredAligEdges,
-                newExposedEdgesNumer, newMS3Numer, newEdSum, newErSum);
+                newExposedEdgesNumer, newMS3Numer, newEdSum, newErSum, newEminSum);
     bool makeChange;
     //if(newCurrentScore == currentScore) makeChange = false; else // if it ain't broke, don't fix it
     makeChange = randomReal(gen) < pBad;
@@ -861,6 +868,7 @@ void SANA::performSwap(uint actColId) {
         aligEdges           = newAligEdges;
         edSum               = newEdSum;
         erSum               = newErSum;
+        eminSum             = newEminSum;
         localScoreSum       = newLocalScoreSum;
         wecSum              = newWecSum;
         ewecSum             = newEwecSum;
@@ -881,7 +889,7 @@ void SANA::performSwap(uint actColId) {
 double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         double newLocalScoreSum, double newWecSum, double newJsSum, double newNcSum, double& newCurrentScore,
         double newEwecSum, double newSquaredAligEdges, double newExposedEdgesNumer, double newMS3Numer,
-        double newEdgeDifferenceSum, double newEdgeRatioSum) {
+        double newEdgeDifferenceSum, double newEdgeRatioSum, double newEdgeMinSum) {
     wasBadMove = false;
     double pBad = 0;
 
@@ -891,6 +899,7 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         newCurrentScore += ecWeight?ecWeight * (newAligEdges / g1Edges):0;
         newCurrentScore += edWeight?edWeight * EdgeDifference::adjustSumToTargetScore(G1,G2,newEdgeDifferenceSum):0;
         newCurrentScore += erWeight?erWeight * EdgeRatio::adjustSumToTargetScore(G1,G2,newEdgeRatioSum):0;
+        newCurrentScore += eminWeight?eminWeight * EdgeMin::adjustSumToTargetScore(G1,G2,newEdgeMinSum):0;
         newCurrentScore += s3Weight?s3Weight * (newAligEdges / (g1Edges + newInducedEdges - newAligEdges)):0;
         newCurrentScore += icsWeight?icsWeight * (newAligEdges / newInducedEdges):0;
         newCurrentScore += secWeight?secWeight * (newAligEdges / g1Edges + newAligEdges / g2Edges)*0.5:0;
@@ -1218,6 +1227,48 @@ double SANA::edgeRatioIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2) {
     return edgeRatioIncDiff;
 }
 
+double SANA::edgeMinIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2) {
+    if (peg1 == peg2) return 0;
+    double edgeMinIncDiff = 0;
+    double c = 0;
+    // Subtract peg1-hole1, add peg1-hole2
+    for (uint node2 : G1->adjLists[peg1]) {
+        double r = min(G1->getEdgeWeight(peg1, node2), G2->getEdgeWeight(hole1, A[node2]));
+        double y = -r - c; // the next 3 lines use some "magic" to recover double precision sums of single precision variables
+        double t = edgeMinIncDiff + y;
+        c = (t - edgeMinIncDiff) - y;
+        edgeMinIncDiff = t;
+
+        uint node2Hole = 0;
+        if (node2 == peg1) node2Hole = hole2;
+        else if (node2 == peg2) node2Hole = hole1;
+        else node2Hole = A[node2];
+
+        r = min(G1->getEdgeWeight(peg1, node2), G2->getEdgeWeight(hole2, node2Hole));
+        y = r - c;
+        t = edgeMinIncDiff + y;
+        c = (t - edgeMinIncDiff) - y;
+        edgeMinIncDiff = t;
+    }
+   // Subtract peg2-hole2, add peg2-hole1
+   for (uint node2 : G1->adjLists[peg2]) {
+        if (node2 == peg1) continue;
+        double r = min(G1->getEdgeWeight(peg2, node2), G2->getEdgeWeight(hole2, A[node2]));
+        double y = -r - c;
+        double t = edgeMinIncDiff + y;
+        c = (t - edgeMinIncDiff) - y;
+        edgeMinIncDiff = t;
+
+        uint node2Hole = (node2 == peg2 ? hole1 : A[node2]);
+        r = min(G1->getEdgeWeight(peg2, node2), G2->getEdgeWeight(hole1, node2Hole));
+        y = r - c;
+        t = edgeMinIncDiff + y;
+        c = (t - edgeMinIncDiff) - y;
+        edgeMinIncDiff = t;
+    }
+    return edgeMinIncDiff;
+}
+
 
 double SANA::edgeDifferenceIncChangeOp(uint peg, uint oldHole, uint newHole) {
     double edgeDifferenceIncDiff = 0;
@@ -1255,6 +1306,26 @@ double SANA::edgeRatioIncChangeOp(uint peg, uint oldHole, uint newHole) {
         edgeRatioIncDiff = t;
     }
     return edgeRatioIncDiff;
+}
+
+double SANA::edgeMinIncChangeOp(uint peg, uint oldHole, uint newHole) {
+    double edgeMinIncDiff = 0;
+    double c = 0;
+    for (uint node2 : G1->adjLists[peg]) {
+        double r = min(G1->getEdgeWeight(peg, node2), G2->getEdgeWeight(oldHole, A[node2]));
+        double y = -r - c;
+        double t = edgeMinIncDiff + y;
+        c = (t - edgeMinIncDiff) - y;
+        edgeMinIncDiff = t;
+
+        uint node2Hole = node2 == peg ? newHole : A[node2];
+        r = min(G1->getEdgeWeight(peg, node2), G2->getEdgeWeight(newHole, node2Hole));
+        y = r - c;
+        t = edgeMinIncDiff + y;
+        c = (t - edgeMinIncDiff) - y;
+        edgeMinIncDiff = t;
+    }
+    return edgeMinIncDiff;
 }
 
 // UGLY GORY HACK BELOW!! Sometimes the edgeVal is crazily wrong, like way above 1,000, when it
@@ -2250,8 +2321,7 @@ void SANA::initIterPerSecond() {
         totalIps = totalIps / (double) ipsListSize;
     } else {
         Temperature = TInitial;
-        cout << "Since temperature goldilocks is provided, ips will be "
-             << "calculated using constantTempIterations at temperature " << Temperature << endl;
+        //cout << "Since temperature goldilocks is provided, ips will be calculated using constantTempIterations at temperature " << Temperature << endl;
         long long int iter = 1E6;
         constantTempIterations(iter - 1);
         double res = iter/timer.elapsed();
