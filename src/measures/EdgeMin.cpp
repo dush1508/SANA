@@ -1,3 +1,4 @@
+#include "Misc.hpp"
 #include "EdgeMin.hpp"
 #include <vector>
 
@@ -22,13 +23,18 @@ double EdgeMin::eval(const Alignment& A) {
     return EdgeMin::adjustSumToTargetScore(G1, G2, edgeMinSum);
 }
 
+
+double EdgeMin::getAligEdgeScore(const Graph* G1, const uint u1, const uint v1,
+			     const Graph* G2, const uint u2, const uint v2) {
+   return min(G1->getEdgeWeight(u1,v1), G2->getEdgeWeight(u2,v2));
+}
+
 double EdgeMin::getEdgeMinSum(const Graph* G1, const Graph* G2, const Alignment &A) {
     double edgeMinSum = 0, simpleSum=0;
     double c = 0; // used for high-precision sum
     for (const auto& edge : *(G1->getEdgeList())) {
        uint node1 = edge[0], node2 = edge[1];
-       double val = min(G1->getEdgeWeight(node1,node2), G2->getEdgeWeight(A[node1],A[node2]));
-       assert(val>=0); // not sure how to handle my negative weights in directed-to-undirected case...
+       double val = getAligEdgeScore(G1,node1,node2, G2,A[node1],A[node2]);
        simpleSum += val;
        double y = val - c;
        double t = edgeMinSum + y;

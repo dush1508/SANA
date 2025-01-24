@@ -1101,7 +1101,8 @@ int SANA::aligEdgesIncChangeOp(uint peg, uint oldHole, uint newHole) {
 
 int SANA::aligEdgesIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2) {
 #ifdef WEIGHT
-    return 0; //not applicable
+    throw runtime_error("SANA::aligEdgesIncSwapOp should not be called with WEIGHT");
+    return 0;
 #else
     int res = 0;
     if (G1->hasSelfLoop(peg1)) {
@@ -1138,17 +1139,6 @@ int SANA::aligEdgesIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2) {
 #endif // WEIGHT
 }
 
-static double getRatio(double w1, double w2) {
-    double r;
-    if (w1==0 && w2==0) r=1;
-    else if (abs(w1)<abs(w2)) r=w1/w2;
-    else r=w2/w1;
-    // At this point, r can be in [-1,1], but we want it [0,1], so add 1 and divide by 2
-    r = (r+1)/2;
-    assert(r>=0 && r<=1);
-    return r;
-}
-
 /* We swap the mapping of two nodes peg1 and peg2
  * We can first handle peg1, then do the same with peg2
  * Subtract old edge difference with edge (peg1, hole1)
@@ -1158,33 +1148,33 @@ double SANA::edgeDifferenceIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole
     // Handle peg1
     double edgeDifferenceIncDiff = 0;
     double c = 0;
-    for (uint node2 : G1->adjLists[peg1]) {
-        double y = -abs(G1->getEdgeWeight(peg1, node2) - G2->getEdgeWeight(hole1, A[node2])) - c;
+    for (uint nbr : G1->adjLists[peg1]) {
+        double y = -abs(G1->getEdgeWeight(peg1, nbr) - G2->getEdgeWeight(hole1, A[nbr])) - c;
         double t = edgeDifferenceIncDiff + y;
         c = (t - edgeDifferenceIncDiff) - y;
         edgeDifferenceIncDiff = t;
 
-        // Determine the new target hole for node2
-        uint node2Hole = 0;
-        if (node2 == peg1) node2Hole = hole2;
-        else if (node2 == peg2) node2Hole = hole1;
-        else node2Hole = A[node2];
+        // Determine the new target hole for nbr
+        uint nbrHole = 0;
+        if (nbr == peg1) nbrHole = hole2;
+        else if (nbr == peg2) nbrHole = hole1;
+        else nbrHole = A[nbr];
 
-        y = +abs(G1->getEdgeWeight(peg1, node2) - G2->getEdgeWeight(hole2, node2Hole)) - c;
+        y = +abs(G1->getEdgeWeight(peg1, nbr) - G2->getEdgeWeight(hole2, nbrHole)) - c;
         t = edgeDifferenceIncDiff + y;
         c = (t - edgeDifferenceIncDiff) - y;
         edgeDifferenceIncDiff = t;
     }
     // Handle peg2
-    for (uint node2 : G1->adjLists[peg2]) {
-        if (node2 == peg1) continue;
-        double y = -abs(G1->getEdgeWeight(peg2, node2) - G2->getEdgeWeight(hole2, A[node2])) - c;
+    for (uint nbr : G1->adjLists[peg2]) {
+        if (nbr == peg1) continue;
+        double y = -abs(G1->getEdgeWeight(peg2, nbr) - G2->getEdgeWeight(hole2, A[nbr])) - c;
         double t = edgeDifferenceIncDiff + y;
         c = (t - edgeDifferenceIncDiff) - y;
         edgeDifferenceIncDiff = t;
 
-        uint node2Hole = (node2 == peg2 ? hole1 : A[node2]);
-        y = +abs(G1->getEdgeWeight(peg2, node2) - G2->getEdgeWeight(hole1, node2Hole)) - c;
+        uint nbrHole = (nbr == peg2 ? hole1 : A[nbr]);
+        y = +abs(G1->getEdgeWeight(peg2, nbr) - G2->getEdgeWeight(hole1, nbrHole)) - c;
         t = edgeDifferenceIncDiff + y;
         c = (t - edgeDifferenceIncDiff) - y;
         edgeDifferenceIncDiff = t;
@@ -1192,40 +1182,65 @@ double SANA::edgeDifferenceIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole
     return edgeDifferenceIncDiff;
 }
 
+double SANA::edgeRatioIncChangeOp(uint peg, uint oldHole, uint newHole) {
+    assert(A[peg] == oldHole);
+    double edgeRatioIncDiff = 0;
+    double c = 0;
+    for (uint nbr : G1->adjLists[peg]) {
+	if(nbr == peg) assert(A[nbr] == oldHole);
+        double r = EdgeRatio::getAligEdgeScore(G1,peg,nbr, G2,oldHole,A[nbr]);
+        double y = -r - c;
+        double t = edgeRatioIncDiff + y;
+        c = (t - edgeRatioIncDiff) - y;
+        edgeRatioIncDiff = t;
+
+        uint nbrHole; // nbrHole = (nbr == peg ? newHole : A[nbr]);
+	if(nbr == peg) nbrHole = newHole; // if the PEG has a self-loop, then any underlying self-loop is at newHole...
+	else nbrHole = A[nbr]; //... otherwise the underlying edge is between newHole and the true neighbor's aligned hole.
+        r = EdgeRatio::getAligEdgeScore(G1,peg,nbr, G2,newHole,nbrHole);
+        y = r - c;
+        t = edgeRatioIncDiff + y;
+        c = (t - edgeRatioIncDiff) - y;
+        edgeRatioIncDiff = t;
+    }
+    return edgeRatioIncDiff;
+}
+
 double SANA::edgeRatioIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2) {
+    assert(A[peg1] == hole1 && A[peg2] == hole2);
     if (peg1 == peg2) return 0;
     double edgeRatioIncDiff = 0;
     double c = 0;
     // Subtract peg1-hole1, add peg1-hole2
-    for (uint node2 : G1->adjLists[peg1]) {
-        double r = getRatio(G1->getEdgeWeight(peg1, node2), G2->getEdgeWeight(hole1, A[node2]));
+    for (uint nbr : G1->adjLists[peg1]) {
+        double r = EdgeRatio::getAligEdgeScore(G1,peg1,nbr, G2,hole1,A[nbr]);
         double y = -r - c; // the next 3 lines use some "magic" to recover double precision sums of single precision variables
         double t = edgeRatioIncDiff + y;
         c = (t - edgeRatioIncDiff) - y;
         edgeRatioIncDiff = t;
 
-        uint node2Hole = 0;
-        if (node2 == peg1) node2Hole = hole2;
-        else if (node2 == peg2) node2Hole = hole1;
-        else node2Hole = A[node2];
+        uint nbrHole = 0;
+        if (nbr == peg1) nbrHole = hole2;
+        else if (nbr == peg2) nbrHole = hole1;
+        else nbrHole = A[nbr];
 
-        r = getRatio(G1->getEdgeWeight(peg1, node2), G2->getEdgeWeight(hole2, node2Hole));
+        r = EdgeRatio::getAligEdgeScore(G1,peg1,nbr, G2,hole2,nbrHole);
         y = r - c;
         t = edgeRatioIncDiff + y;
         c = (t - edgeRatioIncDiff) - y;
         edgeRatioIncDiff = t;
     }
    // Subtract peg2-hole2, add peg2-hole1
-   for (uint node2 : G1->adjLists[peg2]) {
-        if (node2 == peg1) continue;
-        double r = getRatio(G1->getEdgeWeight(peg2, node2), G2->getEdgeWeight(hole2, A[node2]));
+   for (uint nbr : G1->adjLists[peg2]) {
+        if (nbr == peg1) continue;
+        double r = EdgeRatio::getAligEdgeScore(G1,peg2,nbr, G2,hole2,A[nbr]);
         double y = -r - c;
         double t = edgeRatioIncDiff + y;
         c = (t - edgeRatioIncDiff) - y;
         edgeRatioIncDiff = t;
 
-        uint node2Hole = (node2 == peg2 ? hole1 : A[node2]);
-        r = getRatio(G1->getEdgeWeight(peg2, node2), G2->getEdgeWeight(hole1, node2Hole));
+        uint nbrHole = (nbr == peg2 ? hole1 : A[nbr]);
+        r = EdgeRatio::getAligEdgeScore(G1,peg2,nbr, G2,hole1,nbrHole);
         y = r - c;
         t = edgeRatioIncDiff + y;
         c = (t - edgeRatioIncDiff) - y;
@@ -1239,35 +1254,35 @@ double SANA::edgeMinIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2) {
     double edgeMinIncDiff = 0;
     double c = 0;
     // Subtract peg1-hole1, add peg1-hole2
-    for (uint node2 : G1->adjLists[peg1]) {
-        double r = min(G1->getEdgeWeight(peg1, node2), G2->getEdgeWeight(hole1, A[node2]));
+    for (uint nbr : G1->adjLists[peg1]) {
+        double r = EdgeMin::getAligEdgeScore(G1,peg1,nbr, G2,hole1,A[nbr]);
         double y = -r - c; // the next 3 lines use some "magic" to recover double precision sums of single precision variables
         double t = edgeMinIncDiff + y;
         c = (t - edgeMinIncDiff) - y;
         edgeMinIncDiff = t;
 
-        uint node2Hole = 0;
-        if (node2 == peg1) node2Hole = hole2;
-        else if (node2 == peg2) node2Hole = hole1;
-        else node2Hole = A[node2];
+        uint nbrHole = 0;
+        if (nbr == peg1) nbrHole = hole2;
+        else if (nbr == peg2) nbrHole = hole1;
+        else nbrHole = A[nbr];
 
-        r = min(G1->getEdgeWeight(peg1, node2), G2->getEdgeWeight(hole2, node2Hole));
+        r = EdgeMin::getAligEdgeScore(G1,peg1,nbr, G2,hole2,nbrHole);
         y = r - c;
         t = edgeMinIncDiff + y;
         c = (t - edgeMinIncDiff) - y;
         edgeMinIncDiff = t;
     }
    // Subtract peg2-hole2, add peg2-hole1
-   for (uint node2 : G1->adjLists[peg2]) {
-        if (node2 == peg1) continue;
-        double r = min(G1->getEdgeWeight(peg2, node2), G2->getEdgeWeight(hole2, A[node2]));
+   for (uint nbr : G1->adjLists[peg2]) {
+        if (nbr == peg1) continue;
+        double r = EdgeMin::getAligEdgeScore(G1,peg2,nbr, G2,hole2,A[nbr]);
         double y = -r - c;
         double t = edgeMinIncDiff + y;
         c = (t - edgeMinIncDiff) - y;
         edgeMinIncDiff = t;
 
-        uint node2Hole = (node2 == peg2 ? hole1 : A[node2]);
-        r = min(G1->getEdgeWeight(peg2, node2), G2->getEdgeWeight(hole1, node2Hole));
+        uint nbrHole = (nbr == peg2 ? hole1 : A[nbr]);
+        r = EdgeMin::getAligEdgeScore(G1,peg2,nbr, G2,hole1,nbrHole);
         y = r - c;
         t = edgeMinIncDiff + y;
         c = (t - edgeMinIncDiff) - y;
@@ -1280,14 +1295,14 @@ double SANA::edgeMinIncSwapOp(uint peg1, uint peg2, uint hole1, uint hole2) {
 double SANA::edgeDifferenceIncChangeOp(uint peg, uint oldHole, uint newHole) {
     double edgeDifferenceIncDiff = 0;
     double c = 0;
-    for (uint node2 : G1->adjLists[peg]) {
-        double y = -abs(G1->getEdgeWeight(peg, node2) - G2->getEdgeWeight(oldHole, A[node2])) - c;
+    for (uint nbr : G1->adjLists[peg]) {
+        double y = -abs(G1->getEdgeWeight(peg, nbr) - G2->getEdgeWeight(oldHole, A[nbr])) - c;
         double t = edgeDifferenceIncDiff + y;
         c = (t - edgeDifferenceIncDiff) - y;
         edgeDifferenceIncDiff = t;
 
-        uint node2Hole = node2 == peg ? newHole : A[node2];
-        y = +abs(G1->getEdgeWeight(peg, node2) - G2->getEdgeWeight(newHole, node2Hole)) - c;
+        uint nbrHole = nbr == peg ? newHole : A[nbr];
+        y = +abs(G1->getEdgeWeight(peg, nbr) - G2->getEdgeWeight(newHole, nbrHole)) - c;
         t = edgeDifferenceIncDiff + y;
         c = (t - edgeDifferenceIncDiff) - y;
         edgeDifferenceIncDiff = t;
@@ -1295,38 +1310,18 @@ double SANA::edgeDifferenceIncChangeOp(uint peg, uint oldHole, uint newHole) {
     return edgeDifferenceIncDiff;
 }
 
-double SANA::edgeRatioIncChangeOp(uint peg, uint oldHole, uint newHole) {
-    double edgeRatioIncDiff = 0;
-    double c = 0;
-    for (uint node2 : G1->adjLists[peg]) {
-        double r = getRatio(G1->getEdgeWeight(peg, node2), G2->getEdgeWeight(oldHole, A[node2]));
-        double y = -r - c;
-        double t = edgeRatioIncDiff + y;
-        c = (t - edgeRatioIncDiff) - y;
-        edgeRatioIncDiff = t;
-
-        uint node2Hole = node2 == peg ? newHole : A[node2];
-        r = getRatio(G1->getEdgeWeight(peg, node2), G2->getEdgeWeight(newHole, node2Hole));
-        y = r - c;
-        t = edgeRatioIncDiff + y;
-        c = (t - edgeRatioIncDiff) - y;
-        edgeRatioIncDiff = t;
-    }
-    return edgeRatioIncDiff;
-}
-
 double SANA::edgeMinIncChangeOp(uint peg, uint oldHole, uint newHole) {
     double edgeMinIncDiff = 0;
     double c = 0;
-    for (uint node2 : G1->adjLists[peg]) {
-        double r = min(G1->getEdgeWeight(peg, node2), G2->getEdgeWeight(oldHole, A[node2]));
+    for (uint nbr : G1->adjLists[peg]) {
+        double r = EdgeMin::getAligEdgeScore(G1,peg,nbr, G2,oldHole,A[nbr]);
         double y = -r - c;
         double t = edgeMinIncDiff + y;
         c = (t - edgeMinIncDiff) - y;
         edgeMinIncDiff = t;
 
-        uint node2Hole = node2 == peg ? newHole : A[node2];
-        r = min(G1->getEdgeWeight(peg, node2), G2->getEdgeWeight(newHole, node2Hole));
+        uint nbrHole = nbr == peg ? newHole : A[nbr];
+        r = EdgeMin::getAligEdgeScore(G1,peg,nbr, G2,newHole,nbrHole);
         y = r - c;
         t = edgeMinIncDiff + y;
         c = (t - edgeMinIncDiff) - y;

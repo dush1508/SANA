@@ -278,7 +278,7 @@ Graph GraphLoader::loadGraphFromFile(const string& graphName, const string& file
     string format = fileName.substr(fileName.find_last_of('.')+1);
     string uncompressedFileExt = FileIO::getUncompressedFileExtension(fileName);
     if (loadWeights and (format == "gml" or format == "lgf" or format == "xml" or format == "csv" or format == "el"))
-        throw runtime_error("GraphLoader does not support weights for format '"+format+"'");
+        throw runtime_error("Cannot load weights either because you compiled without WEIGHT, or because GraphLoader does not support weights for format '"+format+"'");
     
     if(!loadWeights and format=="elw")
         throw runtime_error("GraphLoader does not support format '"+format+"' for unweighted graphs");
