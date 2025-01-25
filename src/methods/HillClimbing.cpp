@@ -90,7 +90,7 @@ Alignment HillClimbing::run() {
     double g1Edges = G1->getNumEdges();
     double g1Nodes = n1;
 
-    int aligEdges = Alignment(A).numAlignedEdges(*G1, *G2);
+    int aligEdges = Alignment(A).computeNumAlignedEdges(*G1, *G2);
     bool needG2InducedEdges = (icsWeight > 0 or s3Weight > 0);
     int g2InducedEdges;
     if (needG2InducedEdges) g2InducedEdges = G2->numEdgesInNodeInducedSubgraph(A);
