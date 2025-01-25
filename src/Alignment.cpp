@@ -189,7 +189,7 @@ Alignment &Alignment::operator=(Alignment other) {
     return *this;
 }
 
-uint Alignment::numAlignedEdges(const Graph& G1, const Graph& G2) const {
+uint Alignment::computeNumAlignedEdges(const Graph& G1, const Graph& G2) const {
     uint res = 0;
     for (const auto& edge: *(G1.getEdgeList()))
         res += G2.getEdgeWeight(A[edge[0]], A[edge[1]]);

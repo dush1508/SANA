@@ -287,7 +287,7 @@ void SANA::initDataStructures() {
         }
     }
 
-    if (needAligEdges or needSec) aligEdges = alig.numAlignedEdges(*G1, *G2);
+    if (needAligEdges or needSec) aligEdges = alig.computeNumAlignedEdges(*G1, *G2);
     if (needEd) edSum = EdgeDifference::getEdgeDifferenceSum(G1, G2, alig);
     if (needEr) erSum = EdgeRatio::getEdgeRatioSum(G1, G2, alig);
     if (needEmin) eminSum = EdgeMin::getEdgeMinSum(G1, G2, alig);

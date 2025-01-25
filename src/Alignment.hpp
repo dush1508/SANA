@@ -57,7 +57,7 @@ public:
     uint& back();
     void compose(const Alignment& other);
 
-    uint numAlignedEdges(const Graph& G1, const Graph& G2) const;
+    uint computeNumAlignedEdges(const Graph& G1, const Graph& G2) const;
 
     bool isCorrectlyDefined(const Graph& G1, const Graph& G2);
     void printDefinitionErrors(const Graph& G1, const Graph& G2);

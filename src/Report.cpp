@@ -84,7 +84,7 @@ void Report::saveReport(const Graph& G1, const Graph& G2, const Alignment& A,
     table[0][6] = "ICS"; table[0][7] = "S3"; table[0][8] = "JS";
 
     table[1][0] = "G1"; table[1][1] = to_string(G1.getNumNodes()); table[1][2] = to_string(G1.getNumEdges());
-    table[1][3] = to_string(A.numAlignedEdges(G1, G2)); table[1][4] = to_string(G2.numEdgesInNodeInducedSubgraph(A.asVector()));
+    table[1][3] = to_string(A.computeNumAlignedEdges(G1, G2)); table[1][4] = to_string(G2.numEdgesInNodeInducedSubgraph(A.asVector()));
     table[1][5] = to_string(M.eval("ec",A));
     table[1][6] = to_string(M.eval("ics",A)); table[1][7] = to_string(M.eval("s3",A)); table[1][8] = to_string(M.eval("js", A));
 
@@ -94,7 +94,7 @@ void Report::saveReport(const Graph& G1, const Graph& G2, const Alignment& A,
         newA.compose(A);
         table[i+2][0] = "CCS_"+to_string(i); table[i+2][1] = to_string(H.getNumNodes());
         table[i+2][2] = to_string(H.getNumEdges());
-        table[i+2][3] = to_string(newA.numAlignedEdges(H, G2));
+        table[i+2][3] = to_string(newA.computeNumAlignedEdges(H, G2));
         table[i+2][4] = to_string(G2.numEdgesInNodeInducedSubgraph(newA.asVector()));
         EdgeCorrectness ec(&H, &G2, 1);
         table[i+2][5] = to_string(ec.eval(newA));
@@ -333,7 +333,7 @@ void Report::reportAll(const Graph& G1, const Graph& G2, const Alignment& A,
     table[0][6] = "ICS"; table[0][7] = "S3"; table[0][8] = "JS";
 
     table[1][0] = "G1"; table[1][1] = to_string(G1.getNumNodes()); table[1][2] = to_string(G1.getNumEdges());
-    table[1][3] = to_string(A.numAlignedEdges(G1, G2)); table[1][4] = to_string(G2.numEdgesInNodeInducedSubgraph(A.asVector()));
+    table[1][3] = to_string(A.computeNumAlignedEdges(G1, G2)); table[1][4] = to_string(G2.numEdgesInNodeInducedSubgraph(A.asVector()));
     table[1][5] = to_string(M.eval("ec", A));
     table[1][6] = to_string(M.eval("ics", A));table[1][7] = to_string(M.eval("s3", A));table[1][8] = to_string(M.eval("js", A));
 
@@ -343,7 +343,7 @@ void Report::reportAll(const Graph& G1, const Graph& G2, const Alignment& A,
         newA.compose(A);
         table[i+2][0] = "CCS_"+to_string(i); table[i+2][1] = to_string(H.getNumNodes());
         table[i+2][2] = to_string(H.getNumEdges());
-        table[i+2][3] = to_string(newA.numAlignedEdges(H, G2));
+        table[i+2][3] = to_string(newA.computeNumAlignedEdges(H, G2));
         table[i+2][4] = to_string(G2.numEdgesInNodeInducedSubgraph(newA.asVector()));
         EdgeCorrectness ec(&H, &G2, 1);
         table[i+2][5] = to_string(ec.eval(newA));
