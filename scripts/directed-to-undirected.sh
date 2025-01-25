@@ -24,15 +24,11 @@ which(){ echo "$PATH" | tr : "$NL" | awk '!seen[$0]{print}{++seen[$0]}' | while 
 
 [ $# -le 1 ] || die "expecting at most one filename [otherwise use stdin]"
 
-sed 's///' "$@" | tr , "$TAB" |
-    hawk '{ASSERT(NF==2||NF==3,"must have 2 or 3 columns");if(NF==3)ASSERT(1*$3,"third column is not a number");}
-	($2 in edge) && ($1 in edge[$2]){
-	    if(ABS($3)>ABS(edge[$2][$1]))
-		delete edge[$2][$1]; #delete the other one and continue to the next block to assign THIS one
-	    else
-		next; # otherwise keep the other one and skip the assignment in the next block
-	}
-	{edge[$1][$2]=$3}
-	END{
-	    for(u in edge)for(v in edge[u]) printf "%s\t%s\t%s\n",u,v,edge[u][v]
-	}'
+# Basic idea: every node is split into TWO nodes: one takes all incoming edges (%s.i) and one all outgoing (%.o).
+# Then, we pair them with "heavy" edge, to ensure they remain paired.
+HEAVY_EDGE=10000
+sed 's///' "$@" | fgrep -v ' ' | tr , "$TAB" | # the tr is to allow CSV files as input
+    hawk '{ASSERT(NF==3,"network must be weighted with 3 columns"); ASSERT(1*$3,"third column is not a number");}
+	{ASSERT('$HEAVY_EDGE'>9*$3, "Found an edge too big for heavy edge to be 9x the biggest");}
+	$1!=$2{++D[$1];++D[$2]; printf "%s.o\t%s.i\t%s\n",$1,$2,$3}
+	END{for(v in D)printf "%s.i\t%s.o\t10000\n",v,v}'
