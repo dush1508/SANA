@@ -32,7 +32,7 @@ using namespace std;
   #endif
 #else
   #ifdef WEIGHT
-    #define EDGE_T float
+    #define EDGE_T short
   #else
     #define EDGE_T bool //unweighted graphs -- the normal/traditional setting
   #endif

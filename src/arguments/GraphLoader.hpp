@@ -73,9 +73,7 @@ private:
     };
     struct RawEdgeListFileData {
         vector<array<string, 2>> namedEdgeList;
-        //both may be empty, but not both can be set at once
-        vector<uint> intWeights;
-        vector<float> floatWeights;
+        vector<EDGE_T> weights;
         //weight parameter type can be "", "int", "float"
         RawEdgeListFileData(const string& filePath, const string& weightType);
     };
