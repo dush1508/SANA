@@ -38,6 +38,8 @@ vector<string> defaultArguments = {
 "-parallelBatch 1", 
 "-parallelReportAll 0",
 "-f_beta 0,-1"
+"-lps_l 0"
+"-lps_i 0"
 };
 
 //This file contains every argument supported by SANA contained basically inside an array, each element in the array contains 6 fields.
@@ -157,6 +159,8 @@ vector<array<string, 6>> supportedArguments = {
     { "-go_k", "double", "0", "k-common GO terms", "Objective function based on having up to k GO terms in common. Used when \"-objfuntype\" is \"generic\".", "1" },
     { "-graphletcosine", "double", "0", "Similarity of cosine between GDV vectors", "Objective function based on the cosine angle between graphlet degree vectors. Used when \"-objfuntype\" is \"generic\".", "1" },
     { "-f_beta", "comma", "0,-1", "Toggle of FMeasure and value of beta", "This is toggle of the FMeasure and the value of Beta. Citation: New Directions in Network Alignment. Leybovich, I. 2022", "1" },
+    { "-lps_l", "double", "0", "Weight of LPS_L", "This is weight of the LPS_L measure. Leybovich, I. 2022", "1"}
+    { "-lps_i", "double", "0", "Weight of LPS_I", "This is weight of the LPS_I measure. Leybovich, I. 2022", "1"}
     { "-topomeasure", "string", "", "Topological Measure", "Topological component of the scoring function. Used when \"-objfuntype\" is either \"alpha\" or \"beta\".", "1" },
     
     { "", "", "banner", "", "Multiple Alignment Objectives (must compile SANA with \"make multi\")", "0" },

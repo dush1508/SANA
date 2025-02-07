@@ -92,7 +92,7 @@ double totalGenericWeight(ArgumentParser& args) {
     vector<string> optimizableDoubleMeasures = {
         "ec", "ec1", "ec2", "ed","er","emin","s3","js","ics","tc","sec","wec","nodec","noded","edgec","edged", "go",
         "importance", "sequence","graphlet","graphletlgraal", "graphletcosine", "graphletnorm", "spc", "nc",
-        "mec", "ewec", "ses", "ee", "ms3"
+        "mec", "ewec", "ses", "ee", "ms3","lps_l", "lps_i"
     };
     vector<string> optimizableCommaMeasures = {
        "f_beta"
@@ -175,7 +175,9 @@ void initMeasures(MeasureCombination& M, const Graph& G1, const Graph& G2, Argum
     m = new SquaredEdgeScore(&G1, &G2); M.addMeasure(m, getWeight("ses", G1, G2, args));
     m = new EdgeExposure(&G1, &G2); M.addMeasure(m, getWeight("ee", G1, G2, args));
     m = new FMeasure(&G1, &G2,args.commaVectors["-f_beta"].second); M.addMeasure(m, getWeight("f_beta", G1, G2, args));
-    
+    m = new LPS_I(&G1, &G2); M.addMeasure(m, getWeight("lps_i", G1, G2, args))
+    m = new LPS_L(&G1, &G2); M.addMeasure(m, getWeight("lps_l", G1, G2, args))
+
     MultiS3::NumeratorType _numerator_type;
     MultiS3::DenominatorType _denominator_type;
     if (args.strings["-ms3_numer"] == "default"){

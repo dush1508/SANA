@@ -110,6 +110,8 @@ SANA::SANA(const Graph* G1, const Graph* G2,
     eeWeight  = MC->getWeight("ee");
     ms3Weight = MC->getWeight("ms3");
     f_betaWeight = MC->getWeight("f_beta");
+    lps_lWeight = MC->getWeight("lps_l");
+    lps_iWeight = MC->getWeight("lps_i");
     if(f_betaWeight){
         Measure* measurePtr = MC->getMeasure("f_beta");
         FMeasure* fMeasurePtr = dynamic_cast<FMeasure*>(measurePtr);
@@ -132,14 +134,14 @@ SANA::SANA(const Graph* G1, const Graph* G2,
     localWeight = MC->getSumLocalWeight();
 
     //indicate which variables need to be maintained incrementally
-    needAligEdges        = icsWeight > 0 or ecWeight > 0 or s3Weight > 0 or wecWeight > 0 or secWeight > 0 or mecWeight > 0 or f_betaWeight > 0;
+    needAligEdges        = icsWeight > 0 or ecWeight > 0 or s3Weight > 0 or wecWeight > 0 or secWeight > 0 or mecWeight > 0 or f_betaWeight > 0 or lps_iWeight > 0 or lps_lWeight > 0;
     needEd               = edWeight > 0; //edge difference
     needEr               = erWeight > 0; //edge ratio
     needEmin              = eminWeight > 0; //edge ratio
     needSquaredAligEdges = sesWeight > 0; //SES
     needExposedEdges     = eeWeight > 0 or MultiS3::denominator_type == MultiS3::ee_global; //EE; if needMS3, might use EE as denom
     needMS3              = ms3Weight > 0;
-    needInducedEdges     = s3Weight > 0 or icsWeight > 0 or f_betaWeight > 0;
+    needInducedEdges     = s3Weight > 0 or icsWeight > 0 or f_betaWeight > 0 or lps_iWeight > 0 or lps_lWeight > 0;
     needJs               = jsWeight > 0;
     needWec              = wecWeight > 0;
     needEwec             = ewecWeight>0;
@@ -913,6 +915,24 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         }else{
             newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
         }
+        if(lps_iWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            newCurrentScore += lps_iWeight * LPS_value;
+
+        }
+        if(lps_lWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
+            newCurrentScore += lps_lWeight * LPS_value;
+
+        }
         
 #if defined(MULTI_PAIRWISE) || defined(MULTI_MPI)
         newCurrentScore += mecWeight?mecWeight * (newAligEdges / (g1TotalWeight + g2TotalWeight)):0;
@@ -940,6 +960,24 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
             newCurrentScore *= f_betaWeight?f_betaWeight * (newAligEdges / newInducedEdges):0;
         }else{
             newCurrentScore *= f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        }
+        if(lps_iWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            newCurrentScore *= lps_iWeight * LPS_value;
+
+        }
+        if(lps_lWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
+            newCurrentScore *= lps_lWeight * LPS_value;
+
         }
 
         energyInc = newCurrentScore - currentScore;
@@ -969,6 +1007,24 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         }else{
             newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
         }
+        if(lps_iWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            newCurrentScore += lps_iWeight * LPS_value;
+
+        }
+        if(lps_lWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
+            newCurrentScore += lps_lWeight * LPS_value;
+
+        }
         
         energyInc = newCurrentScore - currentScore;
         wasBadMove = energyInc < 0;
@@ -996,6 +1052,24 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         }else{
             newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
         }
+        if(lps_iWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            newCurrentScore += lps_iWeight * LPS_value;
+
+        }
+        if(lps_lWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
+            newCurrentScore += lps_lWeight * LPS_value;
+
+        }
 
         energyInc = newCurrentScore - currentScore;
         wasBadMove = energyInc < 0;
@@ -1015,6 +1089,24 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
             newCurrentScore += f_betaWeight?f_betaWeight * (newAligEdges / newInducedEdges):0;
         }else{
             newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
+        }
+        if(lps_iWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            newCurrentScore += lps_iWeight * LPS_value;
+
+        }
+        if(lps_lWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
+            newCurrentScore += lps_lWeight * LPS_value;
+
         }
         energyInc = newCurrentScore - currentScore;
         wasBadMove = energyInc < 0;
@@ -1051,6 +1143,25 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         } else {
 	    newCurrentScore += f_betaWeight?f_betaWeight * (((1 + (beta_value * beta_value)) * newAligEdges) / (g1Edges + (beta_value * beta_value * newInducedEdges))) : 0;
         }
+        if(lps_iWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            newCurrentScore += lps_iWeight * LPS_value;
+
+        }
+        if(lps_lWeight){
+            double TruePositive = newAligEdges;
+            double V1 = G1->getNumNodes();
+            double omega = 1/2 * (V1) * (V1-1);
+            double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
+            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
+            newCurrentScore += lps_lWeight * LPS_value;
+
+        }
+        
         energyInc = newCurrentScore - currentScore;
         wasBadMove = maxScore < -1 * minScore;
         break;
