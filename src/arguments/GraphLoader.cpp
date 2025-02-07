@@ -359,7 +359,7 @@ Graph GraphLoader::loadGraphFromEdgeListFile(const string& graphName, const stri
 #ifdef BOOL_EDGE_T
     throw runtime_error("cannot load weights for unweighted graph");
 #elif WEIGHT
-    return Graph(graphName, fileName, edgeAndNodeNameLists.first, edgeAndNodeNameLists.second, edgeListData.floatWeights, {});
+    return Graph(graphName, fileName, edgeAndNodeNameLists.first, edgeAndNodeNameLists.second, edgeListData.weights, {});
 #endif
 }
 
@@ -441,7 +441,7 @@ GraphLoader::RawEdgeListFileData::RawEdgeListFileData(
     FileIO::checkFileExists(fileName);
     uint numLines = FileIO::numLinesInFile(fileName);
     namedEdgeList.reserve(numLines);                                       
-    if (weightType == "float") floatWeights.reserve(numLines);
+    if (weightType == "float") weights.reserve(numLines);
     else if (weightType != "") throw runtime_error("weightType cannot be "+weightType);
 
     stdiobuf sbuf = FileIO::readFileAsStreamBuffer(fileName);
@@ -458,13 +458,13 @@ GraphLoader::RawEdgeListFileData::RawEdgeListFileData(
         }
         if (weightType == "float") {
             float w;
-            if (iss >> w) floatWeights.push_back(w);
+            if (iss >> w) weights.push_back(w);
             else throw runtime_error("failed to read weight from line: "+line);
         }
     }
     namedEdgeList.shrink_to_fit();
-    if (weightType == "int") intWeights.shrink_to_fit();
-    else if (weightType == "float") floatWeights.shrink_to_fit();
+    if (weightType == "int") weights.shrink_to_fit();
+    else if (weightType == "float") weights.shrink_to_fit();
 }
 
 GraphLoader::RawGmlFileData::RawGmlFileData(const string& fileName) {
