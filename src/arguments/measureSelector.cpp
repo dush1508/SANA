@@ -20,6 +20,8 @@
 #include "../measures/EdgeExposure.hpp"
 #include "../measures/MultiS3.hpp"
 #include "../measures/FMeasure.hpp"
+#include "../measures/LPS_L.hpp"
+#include "../measures/LPS_I.hpp"
 #include "../measures/localMeasures/NodeCount.hpp"
 #include "../measures/localMeasures/NodeDensity.hpp"
 #include "../measures/localMeasures/EdgeCount.hpp"
@@ -175,8 +177,8 @@ void initMeasures(MeasureCombination& M, const Graph& G1, const Graph& G2, Argum
     m = new SquaredEdgeScore(&G1, &G2); M.addMeasure(m, getWeight("ses", G1, G2, args));
     m = new EdgeExposure(&G1, &G2); M.addMeasure(m, getWeight("ee", G1, G2, args));
     m = new FMeasure(&G1, &G2,args.commaVectors["-f_beta"].second); M.addMeasure(m, getWeight("f_beta", G1, G2, args));
-    m = new LPS_I(&G1, &G2); M.addMeasure(m, getWeight("lps_i", G1, G2, args))
-    m = new LPS_L(&G1, &G2); M.addMeasure(m, getWeight("lps_l", G1, G2, args))
+    m = new LPS_I(&G1, &G2); M.addMeasure(m, getWeight("lps_i", G1, G2, args));
+    m = new LPS_L(&G1, &G2); M.addMeasure(m, getWeight("lps_l", G1, G2, args));
 
     MultiS3::NumeratorType _numerator_type;
     MultiS3::DenominatorType _denominator_type;

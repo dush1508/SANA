@@ -136,7 +136,7 @@ MEASURES_SRCS = 							\
 	src/measures/localMeasures/GraphletCosine.cpp 			\
 	src/measures/FMeasure.cpp			\
 	src/measures/LPS_L.cpp			\
-	src/measures/LPS_H.cpp			\
+	src/measures/LPS_I.cpp			\
 	src/measures/localMeasures/GraphletNorm.cpp
 
 METHOD_WRAPPERS_SRC =    						\

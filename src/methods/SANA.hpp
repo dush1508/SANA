@@ -136,7 +136,7 @@ private:
     MeasureCombination* MC;
     double eval(const Alignment& A) const;
     double ecWeight, edWeight, erWeight, eminWeight, s3Weight, icsWeight, wecWeight, jsWeight, secWeight,
-           ncWeight, localWeight, mecWeight, sesWeight, eeWeight, ms3Weight, ewecWeight,f_betaWeight;
+           ncWeight, localWeight, mecWeight, sesWeight, eeWeight, ms3Weight, ewecWeight,f_betaWeight,lps_lWeight,lps_iWeight;
 
     //this should be refactored so that the return parameter is not the 9th one out of 15
     // changed in June 2020 to return pBad, not the decision itself. -WH
