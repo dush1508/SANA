@@ -37,9 +37,9 @@ vector<string> defaultArguments = {
 "-parallelTotalAlign 1", 
 "-parallelBatch 1", 
 "-parallelReportAll 0",
-"-f_beta 0,-1"
-"-lps_l 0"
-"-lps_i 0"
+"-f_beta 0 -1",
+"-lps_l 0",
+"-lps_i 0",
 };
 
 //This file contains every argument supported by SANA contained basically inside an array, each element in the array contains 6 fields.
