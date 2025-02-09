@@ -918,16 +918,16 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         if(lps_iWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
-            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            double LPS_value = (TruePositive/(2*newInducedEdges)) + (TrueNegative/(2*(omega-newInducedEdges)));
             newCurrentScore += lps_iWeight * LPS_value;
 
         }
         if(lps_lWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
             double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
             newCurrentScore += lps_lWeight * LPS_value;
@@ -964,16 +964,16 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         if(lps_iWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
-            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            double LPS_value = (TruePositive/(2*newInducedEdges)) + (TrueNegative/(2*(omega-newInducedEdges)));
             newCurrentScore *= lps_iWeight * LPS_value;
 
         }
         if(lps_lWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
             double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
             newCurrentScore *= lps_lWeight * LPS_value;
@@ -1010,16 +1010,16 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         if(lps_iWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
-            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            double LPS_value = (TruePositive/(2*newInducedEdges)) + (TrueNegative/(2*(omega-newInducedEdges)));
             newCurrentScore += lps_iWeight * LPS_value;
 
         }
         if(lps_lWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
             double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
             newCurrentScore += lps_lWeight * LPS_value;
@@ -1055,16 +1055,16 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         if(lps_iWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
-            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            double LPS_value = (TruePositive/(2*newInducedEdges)) + (TrueNegative/(2*(omega-newInducedEdges)));
             newCurrentScore += lps_iWeight * LPS_value;
 
         }
         if(lps_lWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
             double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
             newCurrentScore += lps_lWeight * LPS_value;
@@ -1093,16 +1093,16 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         if(lps_iWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
-            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            double LPS_value = (TruePositive/(2*newInducedEdges)) + (TrueNegative/(2*(omega-newInducedEdges)));
             newCurrentScore += lps_iWeight * LPS_value;
 
         }
         if(lps_lWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
             double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
             newCurrentScore += lps_lWeight * LPS_value;
@@ -1146,16 +1146,16 @@ double SANA::scoreComparison(double newAligEdges, double newInducedEdges,
         if(lps_iWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
-            double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-newInducedEdges)));
+            double LPS_value = (TruePositive/(2*newInducedEdges)) + (TrueNegative/(2*(omega-newInducedEdges)));
             newCurrentScore += lps_iWeight * LPS_value;
 
         }
         if(lps_lWeight){
             double TruePositive = newAligEdges;
             double V1 = G1->getNumNodes();
-            double omega = 1/2 * (V1) * (V1-1);
+            double omega = 0.5 * (V1) * (V1-1);
             double TrueNegative = omega - (g1Edges + newInducedEdges - newAligEdges);
             double LPS_value = (TruePositive/(2*G1->getNumEdges())) + (TrueNegative/(2*(omega-G1->getNumEdges())));
             newCurrentScore += lps_lWeight * LPS_value;
