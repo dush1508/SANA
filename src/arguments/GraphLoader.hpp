@@ -68,7 +68,7 @@ private:
     struct RawGWFileData {
         vector<string> nodeNames;
         vector<array<uint, 2>> edgeList;
-        vector<int> edgeWeights; //may be left empty
+        vector<float> edgeWeights; //may be left empty
         RawGWFileData(const string& filePath, bool containsEdgeWeights);
     };
     struct RawEdgeListFileData {
