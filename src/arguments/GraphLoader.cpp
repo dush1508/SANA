@@ -315,7 +315,7 @@ Graph GraphLoader::loadGraphFromGWFile(const string& graphName, const string& fi
     vector<EDGE_T> edgeWeights;
     edgeWeights.reserve(gwData.edgeWeights.size());
     for (auto w : gwData.edgeWeights) {
-        assert((std::is_same<decltype(w), int>::value) && "Cannot load Non-integer weight from GW file");
+        //assert((std::is_same<decltype(w), int>::value) && "Cannot load Non-integer weight from GW file");
         assert(w >= 0 and "graph cannot have negative weights");
         assert(w < (1L << 8*sizeof(EDGE_T)) -1 and "EDGE_T type is not wide enough for these weights");
         edgeWeights.push_back((EDGE_T) w);

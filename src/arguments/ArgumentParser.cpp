@@ -120,7 +120,7 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
         } else if (commaVectors.count(arg)){
             commaVectors[arg] = std::make_pair(0,-1);
             string commaBuffer = vArg[i+1];
-            cout<<commaBuffer<<endl;
+            //cout<<commaBuffer<<endl;
             std::string::size_type commaPos = commaBuffer.find(',');
             if (commaPos == std::string::npos) {
                 throw std::runtime_error("The correct format for the f_beta parameter is: -f_beta weight,beta_value. Kindly ensure that this format is adhered to.\n");
@@ -139,7 +139,7 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
                 throw std::runtime_error("The correct format for the f_beta parameter is: -f_beta weight,beta_value. Kindly ensure that this format is adhered to.\n");
             }
             if (!isValidSubstring(commaBuffer.substr(commaBuffer.find(',') + 1)) && commaBuffer.substr(commaBuffer.find(',') + 1) != "inf") {
-                std::cout << commaBuffer.substr(commaBuffer.find(',') + 1) << "\n";
+                //std::cout << commaBuffer.substr(commaBuffer.find(',') + 1) << "\n";
                 throw std::runtime_error("The correct format for the f_beta parameter is: -f_beta weight,beta_value. Kindly ensure that this format is adhered to.\n");
             }
 
@@ -147,17 +147,22 @@ ArgumentParser::ArgumentParser(int argc, char* argv[]) {
             // if (commaBuffer.substr(commaBuffer.find(',') + 1) == "inf") {
             //     throw std::runtime_error("f_beta does not accept infinity at the moment. Coming soon....\n");
             // }
+            //size_t commaPos = commaBuffer.find(',');
+            char nextChar = commaBuffer[commaPos + 1];
 
-            double beta_value = std::stod(commaBuffer.substr(commaBuffer.find(',') + 1));
-            if (beta_value < 0 && commaBuffer[commaBuffer.find(',') + 1] != '#' && passedFirstF_beta) {
-                throw std::runtime_error("The range of beta values is [0, inf) or #. The current value is not in this range.\n");
-            }
+            if (nextChar != '#') {
+                double beta_value = std::stod(commaBuffer.substr(commaPos + 1));
+                
+                if (beta_value < 0 && passedFirstF_beta) {
+                    throw std::runtime_error("The range of beta values is [0, inf) or #. The current value is not in this range.\n");
+                }
 
-            if (commaBuffer[commaBuffer.find(',') + 1] == '#') {
-                commaVectors[arg] = std::make_pair(static_cast<double>(std::stod(weightStr)), -1);
+                commaVectors[arg] = std::make_pair(std::stod(weightStr), beta_value);
             } else {
-                commaVectors[arg] = std::make_pair(static_cast<double>(std::stod(weightStr)), beta_value);
+                commaVectors[arg] = std::make_pair(std::stod(weightStr), -1);
             }
+
+            //std::cout << "Beta value: " << nextChar << std::endl;
             i=i+1;
             passedFirstF_beta = true;
         }
